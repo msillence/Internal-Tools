@@ -1,0 +1,135 @@
+{% extends "jobs-base.html" %}{% block content %}
+
+		<div class="filter container">
+			<form class="form-inline">
+			  	<div class="form-group">
+			    	<label for="priority">Priority</label>
+			    	<select class="form-control" id="priority">
+					  	<option>All</option>
+					  	<option {% if filterOptions.priority == "P1" %}selected {% endif %}>P1</option>
+					  	<option {% if filterOptions.priority == "P2" %}selected {% endif %}>P2</option>
+					  	<option {% if filterOptions.priority == "P3" %}selected {% endif %}>P3</option>
+					  	<option {% if filterOptions.priority == "P4" %}selected {% endif %}>P4</option>
+					  	<option {% if filterOptions.priority == "P5" %}selected {% endif %}>P5</option>
+					</select>
+			  	</div>
+			  	<div class="form-group">
+			    	<label for="client">Client</label>
+			    	<select class="form-control" id="client" value="{{filterOptions.client}}">
+			    		<option>All</option>
+						{% for client in clientList %}<option {% if client.name == filterOptions.client %}selected {% endif %}>{{client.name}}</option>{% endfor %}  	  	
+					</select>
+			  	</div>
+			  	<div class="form-group">
+			    	<label for="assignedto">Assigned To</label>
+			    	<input type="text" class="form-control" id="assignedto" placeholder="Assigned To" value="{{filterOptions.assignedTo}}">
+			  	</div>	
+			  	<div class="form-group">
+			    	<label for="jobtext">Job Text</label>
+			    	<input type="text" class="form-control" id="jobtext" placeholder="Job Text" value="{{filterOptions.jobText}}">
+			  	</div>	
+			  	<div class="form-group">
+			    	<label for="area">Functional Area</label>
+			    	<select class="form-control" id="functionalarea" value="{{filterOptions.functionalArea}}">
+			    		<option>All</option>
+						{% for functionalArea in functionalAreaList %}<option {% if functionalArea.functionalArea == filterOptions.functionalArea %}selected {% endif %}>{{functionalArea.functionalArea}}</option>{% endfor %}  	  	
+					</select>
+			  	</div>	
+			  	<div class="form-group">
+			    	<label for="status">Status</label>
+			    	<select class="form-control" id="status" value="{{filterOptions.status}}">
+			    		<option>All</option>
+						{% for status in statusList %}<option {% if status.name == filterOptions.status %}selected {% endif %}>{{status.name}}</option>{% endfor %}  	  	
+					</select>
+			  	</div>							
+			</form>
+		</div>
+
+		<div class="container">
+			<div class="panel-group" id="accordion">
+
+				{% for job in jobList %}				
+			  	<div class="panel panel-default" onclick="loadJobText({{job.number}})">
+			  		<a data-toggle="collapse" data-parent="#accordion" href="#J{{job.number}}">
+				    	<div class="panel-heading" role="tab">
+					      	<h4 class="panel-title">					        	
+					          		<span class="paneljobnumber">{{job.number}}</span> - <span class="panelshorttext">{{job.shortText}}</span><span class="panelpriority">P{{job.priority}}</span> 				        	
+					      	</h4>
+							<p>{{job.longText}}</p>
+				    	</div>
+			    	</a>
+				    <div id="J{{job.number}}" class="panel-collapse collapse" role="tabpanel">
+				    	<span class="paddedspan">Client: </span><span class="panelclient">{{job.client}}</span>
+				    	<span class="paddedspan">Assigned To: </span><span class="panelassignedto">{{job.assignedTo}}</span>
+						<span class="paddedspan">Functional Area: </span><span class="panelfunctionalarea">{{job.functionalArea}}</span>
+						<span class="paddedspan">Status: </span><span class="panelstatus">{{job.status}}</span>
+				      	<div class="panel-body panellongtext" id="JT{{job.number}}">
+				        	
+				      	</div>
+				    </div>
+			  	</div>			  	
+				{% endfor %}  
+
+			</div>
+		</div>			
+
+		<script type="text/javascript">
+
+			function loadJobText(jobNumber) {
+			   $( "#JT" + jobNumber ).load( "{{url_for('job_detail')}}/" + jobNumber);
+			};
+		
+		    function changeUrl(page, url) {
+		        var obj = { Page: page, Url: url };
+		        history.replaceState(obj, obj.Page, obj.Url);
+		    }
+
+			$.expr[":"].containsNoCase = function(el, i, m) {
+			    var search = m[3];
+			    if (!search) return false;
+			    return new RegExp(search, "i").test($(el).text());
+			};
+
+			function filterList() {
+
+				var priority = $("#priority").val();
+				var client = $("#client").val();
+				var assignedTo = $("#assignedto").val();
+				var jobText = $("#jobtext").val();
+				var functionalArea = $("#functionalarea").val();
+				var status = $("#status").val();
+
+				if (priority == "All") {priority = null};
+				if (client == "All") {client = null};
+				if (functionalArea == "All") {functionalArea = null};
+				if (status == "All") {status = null};
+
+		        $(".panel").show();
+
+		        var queryString = '';
+
+		        if (priority) {$(".panelpriority").not(":containsNoCase(" + priority + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&priority=' + priority;};
+		        if (client) {$(".panelclient").not(":containsNoCase(" + client + ")").parent().parent().hide();	queryString = queryString + '&client=' + client;};	
+		        if (assignedTo) {$(".panelassignedto").not(":containsNoCase(" + assignedTo + ")").parent().parent().hide();	queryString = queryString + '&assignedto=' + assignedTo;};	
+		        if (jobText) {$(".panelshorttext").not(":containsNoCase(" + jobText + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&jobtext=' + jobText;};
+		        if (functionalArea) {$(".panelfunctionalarea").not(":containsNoCase(" + functionalArea + ")").parent().parent().hide();	queryString = queryString + '&functionalarea=' + functionalArea;};
+		        if (status) {$(".panelstatus").not(":containsNoCase(" + status + ")").parent().parent().hide();	queryString = queryString + '&status=' + status;};					
+
+		        if (queryString.length > 1) {queryString = '?' + encodeURIComponent(queryString.substring(1))} else {queryString = '?'};
+
+		        changeUrl('Jobs 5', queryString);
+
+			}
+
+			$("#priority").change(function() { filterList() });
+		    $("#client").change(function() { filterList() });
+			$("#assignedto").keyup(function() { filterList() });
+			$("#jobtext").keyup(function() { filterList() });
+			$("#functionalarea").change(function() { filterList() });
+			$("#status").change(function() { filterList() });
+
+			$( document ).ready(filterList());
+
+		</script>
+
+{% endblock %}
