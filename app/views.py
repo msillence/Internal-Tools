@@ -3,7 +3,7 @@ from flask.ext.wtf import Form
 from numbers import Number
 from datetime import datetime
 from wtforms import TextField, PasswordField, validators
-from urllib import unquote
+from urllib import parse
 import pyodbc, json, requests, datetime, time
 import xml.etree.ElementTree as ET
 from app import app
@@ -20,7 +20,7 @@ def logged_in():
 		
 	try:
 		execute_query('SELECT * FROM sysibm.sysdummy1')
-	except pyodbc.Error, err:
+	except pyodbc.Error as err:
 		return False
 		
 	return True			
@@ -88,7 +88,7 @@ class FilterOptions:
 		self.functionalArea = functionalArea
 		self.status = status
 	
-# WRKDBF
+# File Browser
 class Table():
 
 	def __init__(self, library, table):
@@ -108,7 +108,7 @@ class Table():
 		sql = ' FROM (SELECT row_number() over () as rownum, rrn(a) AS rrn, a.* FROM '
 		sql = sql + self.library + '.' + self.table + ' AS a WHERE 1=1'
 
-		for key, value in searchColumns.iteritems():
+		for key, value in searchColumns.items():
 			sql = sql + ' AND UPPER(CAST(' + self.columns[key] + " AS char(5000))) LIKE ('%" + value.upper() + "%') "		
 		
 		# Filtered Record Count
@@ -135,7 +135,10 @@ class Table():
 		
 		output['aaData'] = []
 		
-		for row in data:			
+		for row in data:	
+			for idx, value in enumerate(row):
+				if value is None:
+					row[idx] = 'Null'
 			output['aaData'].append(list(row))
 
 		# Return everything as JSON with a custom encoder to deal with dates/numbers
@@ -145,20 +148,12 @@ class MyEncoder(json.JSONEncoder):
 
 	def default(self, obj):
 		
-		if not obj:
-			return 'NULL'
 		if isinstance(obj, datetime.datetime):
-			return "%02d-%02d-%02d %02d:%02d:%02d.%06d" % (obj.year,obj.month,obj.day,obj.hour,obj.minute, obj.second, obj.microsecond)
+			return "%02d-%02d-%02d-%02d.%02d.%02d.%06d" % (obj.year,obj.month,obj.day,obj.hour,obj.minute, obj.second, obj.microsecond)
 		if isinstance(obj, datetime.date):
 			return "%02d-%02d-%02d" % (obj.year,obj.month,obj.day)
 		if isinstance(obj, datetime.time):
-			return "%02d:%02d:%02d" % (obj.hour,obj.minute, obj.second)
-		if isinstance(obj, basestring):
-			try:
-				string = str(obj).decode('utf-8')
-			except UnicodeDecodeError:
-				string = 'INVALID DATA'			
-			return string			
+			return "%02d.%02d.%02d" % (obj.hour,obj.minute, obj.second)		
 		elif isinstance(obj, Number):
 			return str(obj)
 			
@@ -231,7 +226,7 @@ def job_list():
 	if not logged_in():
 		return redirect(url_for('login'))	
 
-	queryString = unquote(request.query_string)
+	queryString = parse.unquote(request.query_string.decode("utf-8"))
 	parameters = {}
 
 	for parameter in queryString.split('&'):
@@ -269,7 +264,7 @@ def job_list():
 	jobList = []
 
 	for row in data:
-		job = Job(row[0], row[1], row[2].decode("utf8", 'ignore'), row[3].decode("utf8", 'ignore'), row[4], row[5], row[6], row[7])
+		job = Job(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
 		jobList.append(job)
 
 	sql = '''SELECT DISTINCT CAST(jobs3.client AS CHAR(5) CCSID 1208) AS "Client"
@@ -419,7 +414,6 @@ def overview():
 	sql = '''SELECT sum(jobs_opened), sum(jobs_closed) 
 			  FROM wapr.job_stats                     
 			 WHERE date > ''' + str(int(time.strftime('%Y')) * 10000 + quarterDate)
-	print str(int(time.strftime('%Y')) * 10000 + quarterDate)
 	
 	curs = execute_query(sql)		
 	data = curs.fetchall()			
@@ -481,7 +475,7 @@ def job_detail(job = 0):
 	text = '<pre>'
 	
 	for row in data:
-		text = text + row[0].decode("utf8", 'ignore') + '<br>' 
+		text = text + row[0] + '<br>' 
 
 	text = text + '</pre>'
 		
@@ -494,9 +488,9 @@ def stats_by_priority_xml():
 	return Response(xml_string, mimetype='text/xml')		
 
 #############################################
-# WRKDBF Routing
+# File Browser Routing
 #############################################
-@app.route('/WRKDBF/<library>/<table>/')
+@app.route('/files/<library>/<table>/')
 def view(library, table):
 
 	if not logged_in():
@@ -504,9 +498,9 @@ def view(library, table):
 
 	tableInstance = Table(library, table)
 	
-	return render_template("wrkdbf-main.html", columns = tableInstance.columns, library = library, table = table)		
+	return render_template("files-main.html", columns = tableInstance.columns, library = library, table = table)		
 	
-@app.route('/WRKDBF/<library>/<table>/data')
+@app.route('/files/<library>/<table>/data')
 def get_data(library, table):		
 		
 	if not logged_in():

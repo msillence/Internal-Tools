@@ -66,10 +66,10 @@
 							<td>Closed This Month</td>
 							<td>{{monthlyJobsClosed}} </td>
 						</tr>	
-						<tr class="nohover">
+						<!--<tr class="nohover">
 							<td>Average Resolution This Month</td>
 							<td>{{monthlyAverageResolution}} </td>
-						</tr>							
+						</tr>	-->						
 						<tr class="nohover">
 							<td>Opened This Quarter</td>
 							<td>{{quarterlyJobsOpened}} </td>
@@ -78,10 +78,10 @@
 							<td>Closed This Quarter</td>
 							<td>{{quarterlyJobsClosed}} </td>
 						</tr>	
-						<tr class="nohover">
+						<!--<tr class="nohover">
 							<td>Average Resolution This Quarter</td>
 							<td>{{quarterlyAverageResolution}} </td>
-						</tr>						
+						</tr>-->						
 					<tbody>
 				</table>			
 		
@@ -169,7 +169,7 @@ var jobsByClient = new d3pie("jobsByClient", {
 	   window.location.reload();
 }
  
- setInterval('autoRefresh()', 120000); // this will reload page after every 2 minutes
+ setInterval('autoRefresh()', 300000); // this will reload page after every 5 minutes
 
 </script>
 

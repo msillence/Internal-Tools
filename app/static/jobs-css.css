@@ -14,8 +14,17 @@ body {
     background-color: transparent;
     padding: 8px;
 }
+			
+.wrapper {
+	position:absolute;
+	top:30%;
+	right:0;
+	left:0;		
+	vertical-align:middle;
+	text-align:center;			
+}
 
-caption , text{
+caption , h2{
 	color: #ff6c00;
 	text-align: center;
 	font-size: 24px;

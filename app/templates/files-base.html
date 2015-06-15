@@ -2,11 +2,12 @@
 
   <head>
 
-    <title>WRKDBF</title>
+    <title>File Browser</title>
 		
 	<link rel="stylesheet" type=text/css href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-	<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='wrkdbf-css.css') }}">
+	<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='files-css.css') }}">
 	<link rel="stylesheet" type=text/css href="http://cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+	<link rel="stylesheet" type=text/css href="//cdn.datatables.net/tabletools/2.2.4/css/dataTables.tableTools.css">
 	<link rel="shortcut icon" href="{{ url_for('static', filename='jhc.ico') }}">
 	
 	<style>	 
@@ -19,7 +20,7 @@
 	<script src="http://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
 	<script src="{{ url_for('static', filename='jquery.dataTables.columnFilter.js') }}"></script>	
 	<script src="{{ url_for('static', filename='ZeroClipboard.js') }}"></script>	
-	<script src="{{ url_for('static', filename='TableTools.js') }}"></script>	
+	<script src="//cdn.datatables.net/tabletools/2.2.4/js/dataTables.tableTools.min.js"></script>	
 		
   </head>
 
@@ -27,7 +28,7 @@
 	
 		<div class="navbar navbar-default navbar-fixed-top" >
 			<div class="navbar-inner">
-				<a class="navbar-brand">WRKDBF</a>
+				<a class="navbar-brand">File Browser</a>
 				<div class="nav-collapse">
 					<ul class="nav navbar-nav">
 					</ul>

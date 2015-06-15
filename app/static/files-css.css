@@ -74,7 +74,20 @@ select {
 	color: black;
 }
 
+.navbar-brand:hover {
+	color:#ff6c00 !important;
+}
+
 div#main_table_length.datatables_length {
 	float: right;
 	color: white;
+}
+
+ .dataTables_processing { 
+font-size: 3em !important; 
+position: absolute !important;
+height: 100px !important;
+top: 30% !important;
+background:white !important;
+z-index: 9999 !important;
 }
