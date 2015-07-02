@@ -1,0 +1,26 @@
+{% extends "projects.html" %}{% block content %}
+	
+		<div id="projectsearch" class="wrapper">
+			<h2>Search for projects</h2>
+			<input class="typeahead" type="text" placeholder="Projects">
+		</div>
+		
+		
+		<script>
+			var projects = new Bloodhound({
+			  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+			  queryTokenizer: Bloodhound.tokenizers.whitespace,
+			  remote: {
+				url: '{{url_for("projectSearch")}}?query=%QUERY',
+				wildcard: '%QUERY'
+			  }
+			});
+			 
+			$('#projectsearch .typeahead').typeahead(null, {
+			  name: 'projects',
+			  display: 'value',
+			  source: projects
+			});
+		
+		</script>
+{% endblock %}

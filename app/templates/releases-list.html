@@ -1,0 +1,104 @@
+{% extends "releases.html" %}{% block content %}
+
+		<div class="filter container">
+			<form class="form-inline">
+			  	<div class="form-group">
+			    	<label for="status">Status</label>
+			    	<select class="form-control" id="status">
+					  	<option>All</option>
+					  	<option {% if filterOptions.status == "R" %}selected {% endif %} value="R">Red</option>
+					  	<option {% if filterOptions.status == "A" %}selected {% endif %} value="A">Amber</option>
+					  	<option {% if filterOptions.status == "G" %}selected {% endif %} value="G">Green</option>
+					</select>
+			  	</div>			
+			  	<div class="form-group">
+			    	<label for="client">Client</label>
+			    	<select class="form-control" id="client" value="{{filterOptions.client}}">
+			    		<option>All</option>
+						{% for client in clientList %}<option {% if client.name == filterOptions.client %}selected {% endif %}>{{client.name}}</option>{% endfor %}  	  	
+					</select>
+			  	</div>
+			  	<div class="form-group">
+			    	<label for="projectManager">Project Manager</label>
+			    	<select class="form-control" id="projectmanager" value="{{filterOptions.projectManager}}">
+			    		<option>All</option>
+						{% for projectManager in projectManagerList %}<option {% if projectManager.name == filterOptions.projectManager %}selected {% endif %}>{{projectManager.name}}</option>{% endfor %}  	  	
+					</select>
+			  	</div>								
+			</form>
+		</div>
+	
+	<div class="container">
+		<div class="panel-group" id="accordion">		
+			{% for project in projectList %}
+			<a href="{{url_for('projectDetail', projectCode = project.projectCode)}}" class="marginbelow">
+				<div class="panel panel-default {{project.riskLevel}}">
+					<div class="panel-heading" id="H{{project.projectCode}}">					
+						<h4 class="panel-title">				
+							<span class="paneljobnumber">{{project.projectCode}}</span> - <span class="panelshorttext">{{project.description}}</span><span class="panelclient">{{project.client}}</span> 		
+							<span class="panelstatus" style="display: none">{{project.riskLevel}}</span>
+						</h4>	
+						<p>Project Manager: <span class="panelprojectmanager">{{project.projectManager}}</span></p>
+						<p>Current Phase: {{project.phase}}</p>			
+					</div>
+			  </div>			
+			</a>
+			{% else %}
+			<div class="panel panel-default">
+					<div class="panel-heading" role="tab">
+						<h4 class="panel-title">					        	
+							Nothing is approved into this release yet.				        	
+						</h4>
+					</div>
+			</div>				
+			
+			{% endfor %} 
+		</div>
+	</div>
+	
+		<script type="text/javascript">
+		
+		    function changeUrl(page, url) {
+		        var obj = { Page: page, Url: url };
+		        history.replaceState(obj, obj.Page, obj.Url);
+		    }
+
+			$.expr[":"].containsNoCase = function(el, i, m) {
+			    var search = m[3];
+			    if (!search) return false;
+			    return new RegExp(search, "i").test($(el).text());
+			};
+
+			function filterList() {
+
+				var status = $("#status").val();
+				var client = $("#client").val();
+				var projectManager = $("#projectmanager").val();
+
+				if (status == "All") {status = null};
+				if (client == "All") {client = null};
+				if (projectManager == "All") {projectManager = null};
+
+		        $(".marginbelow").show();
+
+		        var queryString = '';
+
+				if (status) {$(".panelstatus").not(":containsNoCase(" + status + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&status=' + status;};
+		        if (projectManager) {$(".panelprojectmanager").not(":containsNoCase(" + projectManager + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&projectmanager=' + projectManager;};
+		        if (client) {$(".panelclient").not(":containsNoCase(" + client + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&client=' + client;};					
+
+		        if (queryString.length > 1) {queryString = '?' + encodeURIComponent(queryString.substring(1))} else {queryString = '?'};
+
+		        changeUrl('Jobs 5', queryString);
+
+			}
+
+			$("#status").change(function() { filterList() });
+			$("#projectmanager").change(function() { filterList() });
+		    $("#client").change(function() { filterList() });
+
+			$( document ).ready(filterList());
+
+		</script>
+		
+{% endblock %}

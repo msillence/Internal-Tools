@@ -10,8 +10,8 @@ from app import app
 
 # Framework
 class LoginForm(Form):
-    username = TextField('Username', [validators.Required()])
-    password = PasswordField('Password', [validators.Required()])
+	username = TextField('Username', [validators.Required()])
+	password = PasswordField('Password', [validators.Required()])
 
 def logged_in():
 
@@ -62,22 +62,25 @@ class Client:
 	def __init__(self, name, numberOfJobs = 0):
 		self.name = name
 		self.numberOfJobs = numberOfJobs
+		
+	def __eq__(self, other):
+		return self.name == other.name
 
+class ProjectManager:
+
+	def __init__(self, name):
+		self.name = name		
+
+	def __eq__(self, other):
+		return self.name == other.name
+		
 class Status:
 
 	def __init__(self, name, numberOfJobs = 0):
 		self.name = name
-		self.numberOfJobs = numberOfJobs		
+		self.numberOfJobs = numberOfJobs					
 		
-class JobHistory:
-
-	def __init__(self, date, numberOfJobs = 0):
-		self.year = str(date)[0:4]
-		self.month = str(int(str(date)[4:6]) - 1)
-		self.day = str(date)[6:8]
-		self.numberOfJobs = numberOfJobs			
-		
-class FilterOptions:
+class FilterOptionsJobs:
 
 	def __init__(self, priority, client, assignedTo, jobText, functionalArea, status):
 
@@ -87,7 +90,15 @@ class FilterOptions:
 		self.jobText = jobText
 		self.functionalArea = functionalArea
 		self.status = status
-	
+
+class FilterOptionsProjects:
+
+	def __init__(self, client, projectManager, status):
+
+		self.client = client
+		self.projectManager = projectManager
+		self.status = status
+		
 # File Browser
 class Table():
 
@@ -159,25 +170,90 @@ class MyEncoder(json.JSONEncoder):
 			
 		return json.JSONEncoder.default(self, obj)	
 
+# Projects
+class Project():		
+
+	def __init__(self, row):
+		self.projectCode = row[0].strip()
+		self.description = row[1]
+		self.client = row[2]
+		self.riskLevel = row[3]
+		self.owner = row[4]
+		self.projectManager = row[5]
+		self.designer = row[6]
+		self.deliveryManager = row[7]
+		self.teamLeader = row[8]
+		self.testLeader = row[9]
+		self.productLeader = row[10]
+		self.businessAnalyst = row[11]
+		self.phase = row[12]
+		self.notes = '<br>'.join(row[13][i:i+64] for i in range(0, len(row[13].strip()), 64))
+
+class Milestone():		
+
+	def __init__(self, row):
+		self.description = row[0]
+		self.baseline = row[1]
+		self.current = row[2]
+		self.riskLevel = row[3]
+
+class SoftwarePackage():
+
+	def __init__(self, row):
+		self.number = row[0]
+		self.application = row[1]
+		self.status = row[2]
+		self.release = row[3]	
+
+class Budget():
+
+	def __init__(self, row):
+		self.type = row[0]
+		self.original = u"\xA3{:,.0f}".format(row[1])
+		self.revised = u"\xA3{:,.0f}".format(row[2])
+		self.actual = u"\xA3{:,.0f}".format(row[3])	
+		self.forecast = u"\xA3{:,.0f}".format(row[4])
+	
+class Effort():
+
+	def __init__(self, row):
+		self.type = row[0]
+		self.original = row[1]
+		self.revised = row[2]
+		self.actual = row[3]	
+		self.forecast = row[4]
+		
+class Release():		
+
+	def __init__(self, releaseNumber, projectCount):		
+		self.releaseNumber = releaseNumber
+		self.projectCount = projectCount
+		
 #############################################
 # Common Routes
 #############################################			
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
+	url = request.args.get('url')
+	
 	form = LoginForm()
 	
 	if form.validate_on_submit():
-
+	
 		session['username'] = form.username.data.upper()
 		session['password'] = form.password.data
 		
-		if logged_in():		
+		if logged_in() and url:	
+			session.permanent = True
+			return redirect(url)
+		elif logged_in():
+			session.permanent = True
 			return redirect(url_for('overview'))		
 		else:
 			flash('Invalid username or password')
 		
-	return render_template("login.html", form=form)
+	return render_template("login.html", form=form, url=url)
 	
 #############################################
 # FST Job List Helper Methods
@@ -224,7 +300,7 @@ def build_xml_tree():
 def job_list():
 
 	if not logged_in():
-		return redirect(url_for('login'))	
+		return redirect(url_for('login', url = url_for('job_list')))	
 
 	queryString = parse.unquote(request.query_string.decode("utf-8"))
 	parameters = {}
@@ -240,7 +316,7 @@ def job_list():
 	functionalArea = parameters.get('functionalarea','')
 	status = parameters.get('status','')
 
-	filterOptions = FilterOptions(priority, client, assignedTo, jobText, functionalArea, status)
+	filterOptions = FilterOptionsJobs(priority, client, assignedTo, jobText, functionalArea, status)
 
 	sql = '''SELECT  jobs3.codex AS "Job Number", 
 				CAST(jobs3.client AS CHAR(5) CCSID 1208) AS "Client", 
@@ -321,13 +397,13 @@ def job_list():
 		status = Status(row[0])
 		statusList.append(status)	
 	
-	return render_template("jobs-list.html", jobList = jobList, clientList = clientList, functionalAreaList = functionalAreaList, statusList = statusList, filterOptions = filterOptions)
+	return render_template("jobs-list.html", jobList = jobList, clientList = clientList, functionalAreaList = functionalAreaList, statusList = statusList, filterOptions = filterOptions, title="FST Jobs - Jobs List")
 
 @app.route("/jobs/overview", methods = ["GET"])
 def overview():
 
 	if not logged_in():
-		return redirect(url_for('login'))	
+		return redirect(url_for('login', url = url_for('overview')))	
 
 	sql = '''SELECT CAST(SUBSTR(jobs3.extra1,1,3) AS CHAR(3)) || '-' ||  CAST(SUBSTR(jobs3.extra1,4,3) AS CHAR(3)) AS "Functional Area", count(*)
 			FROM jobs3                                                               
@@ -422,15 +498,15 @@ def overview():
 	quarterlyAverageResolution = 0
 	
 		
-	return render_template("jobs-overview.html", areaList = areaList, priorityList = getPriorityData(), clientList=clientList, statusList=statusList, total=total, monthlyJobsOpened=monthlyJobsOpened, monthlyJobsClosed=monthlyJobsClosed, monthlyAverageResolution=monthlyAverageResolution, quarterlyJobsOpened=quarterlyJobsOpened, quarterlyJobsClosed=quarterlyJobsClosed, quarterlyAverageResolution=quarterlyAverageResolution)
+	return render_template("jobs-overview.html", areaList = areaList, priorityList = getPriorityData(), clientList=clientList, statusList=statusList, total=total, monthlyJobsOpened=monthlyJobsOpened, monthlyJobsClosed=monthlyJobsClosed, monthlyAverageResolution=monthlyAverageResolution, quarterlyJobsOpened=quarterlyJobsOpened, quarterlyJobsClosed=quarterlyJobsClosed, quarterlyAverageResolution=quarterlyAverageResolution, title="FST Jobs - Overview")
 
 @app.route("/jobs/history", methods = ["GET"])
 def history():	
 
 	if not logged_in():
-		return redirect(url_for('login'))	
+		return redirect(url_for('login', url = url_for('history')))	
 		
-	return render_template("jobs-history.html")
+	return render_template("jobs-history.html", title="FST Jobs - History")
 
 @app.route("/jobs/history_chart", methods = ["GET"])
 def history_chart():	
@@ -494,11 +570,11 @@ def stats_by_priority_xml():
 def view(library, table):
 
 	if not logged_in():
-		return redirect(url_for('login'))	
+		return redirect(url_for('login', url = url_for('view', library=library, table=table)))	
 
 	tableInstance = Table(library, table)
 	
-	return render_template("files-main.html", columns = tableInstance.columns, library = library, table = table)		
+	return render_template("files-main.html", columns = tableInstance.columns, library = library, table = table, title= library.upper() + '/' + table.upper())		
 	
 @app.route('/files/<library>/<table>/data')
 def get_data(library, table):		
@@ -521,4 +597,220 @@ def get_data(library, table):
 	table = Table(library, table)
 	
 	return table.data(firstRecord, pageSize, searchColumns, sortColumn, sortDirection, numberOfColumns, sEcho)	
+
+#############################################
+# Releases
+#############################################	
+@app.route('/releases')
+def releases():
+
+	if not logged_in():
+		return redirect(url_for('login', url = url_for('releases')))
+
+	sql = '''SELECT a.release_number, count(r.release_number)
+			FROM jhcjutil.release_number_description AS a
+				LEFT OUTER JOIN (SELECT r.release_number, r.project_code FROM jhcjutil.project AS p1                                       
+								INNER JOIN jhcjutil.release_submissions_detail AS r             
+										ON p1.procde = r.project_code						
+							WHERE p1.status = 'ACTIVE'                                                            
+							  AND r.release_committee_decision = 'APPROVED'
+							  AND p1.closed <> 'Y'
+							GROUP BY r.release_number, r.project_code) AS r ON a.release_number = r.release_number
+			GROUP BY a.release_number
+			ORDER BY a.release_number DESC'''
+
+	curs = execute_query(sql)		
+	data = curs.fetchall()
+
+	releaseList = []
 	
+	for row in data:
+		release = Release(row[0], row[1])
+		releaseList.append(release)
+		
+	return render_template("releases-main.html", releaseList = releaseList, title="Releases - Overview")
+
+@app.route('/releases/<release>')
+def projectsByRelease(release):
+
+	if not logged_in():
+		return redirect(url_for('login', url = url_for('projectsByRelease')))
+
+	queryString = parse.unquote(request.query_string.decode("utf-8"))
+	parameters = {}
+
+	for parameter in queryString.split('&'):
+		if "=" in parameter:
+			parameters[parameter.split('=')[0]] = parameter.split('=')[1]
+
+	client = parameters.get('client','')
+	projectManager = parameters.get('projectmanager','')
+	status = parameters.get('status','')
+
+	filterOptions = FilterOptionsProjects(client, projectManager, status)
+
+	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.risk_level, 'G'), t1.tename, t2.tename, 
+	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
+			  FROM jhcjutil.project AS p1                                       
+				INNER JOIN jhcjutil.release_submissions_detail AS r             
+						ON p1.procde = r.project_code 
+				LEFT OUTER JOIN tearner AS t1 ON p1.owner = t1.teear
+				LEFT OUTER JOIN tearner AS t2 ON p1.manger = t2.teear
+				LEFT OUTER JOIN tearner AS t3 ON p1.arctct = t3.teear
+				LEFT OUTER JOIN tearner AS t4 ON p1.delvry = t4.teear
+				LEFT OUTER JOIN tearner AS t5 ON p1.teamld = t5.teear
+				LEFT OUTER JOIN tearner AS t6 ON p1.testld = t6.teear
+				LEFT OUTER JOIN tearner AS t7 ON p1.prodld = t7.teear
+				LEFT OUTER JOIN tearner AS t8 ON p1.anlyst = t8.teear
+				LEFT OUTER JOIN (SELECT project_code, MAX(risk_level) AS risk_level FROM jhcjutil.release_submissions_detail 
+				WHERE release_number = ? AND release_committee_decision = 'APPROVED' AND risk_level IN ('R', 'A') GROUP BY project_code) AS risk ON p1.procde = risk.project_code							
+			WHERE p1.status = 'ACTIVE'                                 
+			  AND r.release_number = ?                            
+			  AND r.release_committee_decision = 'APPROVED' 
+			  AND p1.closed <> 'Y'
+			GROUP BY p1.procde, p1.desc, p1.client, risk.risk_level, t1.tename, t2.tename, t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
+			ORDER BY p1.procde                                         '''
+
+	curs = execute_query(sql, parms = [release, release])		
+	data = curs.fetchall()				
+		
+	projectList = []		
+	clientList = []
+	projectManagerList = []
+	
+	for row in data:
+	
+		project = Project(row)
+		projectList.append(project)
+		
+		if Client(project.client.strip()) not in clientList:
+			client = Client(project.client.strip())
+			clientList.append(client)
+
+		if ProjectManager(project.projectManager.strip()) not in projectManagerList and project.projectManager.strip() != "":
+			projectManager = ProjectManager(project.projectManager.strip())
+			projectManagerList.append(projectManager)				
+	
+	projectManagerList = sorted(projectManagerList, key=lambda projectManager: projectManager.name)
+	clientList = sorted(clientList, key=lambda client: client.name)
+	
+	return render_template("releases-list.html", projectList = projectList, title="Releases - " + release, clientList = clientList, filterOptions = filterOptions, projectManagerList = projectManagerList)
+	
+#############################################
+# Projects
+#############################################	
+@app.route('/projectsearch')
+def projectSearch():
+
+	if not logged_in():
+		return redirect(url_for('login', url = url_for('projectSearch')))
+
+	query = request.args.get('query')
+	query = query.strip().upper()
+
+	sql = '''SELECT DISTINCT procde, desc
+				FROM project
+			WHERE procde LIKE '%'  || ?  || '%'
+			   OR desc LIKE '%'  || ? || '%'
+			ORDER BY procde'''	
+			
+	curs = execute_query(sql, parms = [query, query])		
+	data = curs.fetchall()
+
+	results = []
+	
+	for row in data:
+		searchJson = {}
+		searchJson['id'] = row[0]
+		searchJson['label'] = row[1]
+		results.append(searchJson)
+		
+	return json.dumps(results)
+	
+@app.route('/projects/<projectCode>')
+def projectDetail(projectCode):
+	
+	if not logged_in():
+		return redirect(url_for('login', url = url_for('projectDetail')))	
+	
+	if projectCode.upper() == 'OVERVIEW':
+		return render_template("projects-overview.html",title = "Projects - Overview")
+
+	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.risk_level, 'G'), t1.tename, t2.tename, 
+	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
+			  FROM jhcjutil.project AS p1                                       
+				LEFT OUTER JOIN tearner AS t1 ON p1.owner = t1.teear
+				LEFT OUTER JOIN tearner AS t2 ON p1.manger = t2.teear
+				LEFT OUTER JOIN tearner AS t3 ON p1.arctct = t3.teear
+				LEFT OUTER JOIN tearner AS t4 ON p1.delvry = t4.teear
+				LEFT OUTER JOIN tearner AS t5 ON p1.teamld = t5.teear
+				LEFT OUTER JOIN tearner AS t6 ON p1.testld = t6.teear
+				LEFT OUTER JOIN tearner AS t7 ON p1.prodld = t7.teear
+				LEFT OUTER JOIN tearner AS t8 ON p1.anlyst = t8.teear
+				LEFT OUTER JOIN (SELECT project_code, MAX(risk_level) AS risk_level FROM jhcjutil.release_submissions_detail 
+				WHERE release_committee_decision = 'APPROVED' AND risk_level IN ('R', 'A') GROUP BY project_code) AS risk ON p1.procde = risk.project_code	
+			WHERE p1.procde = ? '''
+
+	curs = execute_query(sql, parms = [projectCode])		
+	data = curs.fetchall()
+
+	project = Project(data[0])
+	
+	sql = '''SELECT milestone_desc, milestone_baseline, milestone_current, milestone_rag
+				FROM project_milestones
+			WHERE project_code = ?'''
+
+	curs = execute_query(sql, parms = [projectCode])		
+	data = curs.fetchall()				
+		
+	milestoneList = []
+	
+	for row in data:
+		milestone = Milestone(row)
+		milestoneList.append(milestone)
+	
+	sql = '''SELECT s.packno, s.app, s.status, s.drp2no 
+			  FROM sofpack AS s                                
+				INNER JOIN soflnk AS l ON s.packno = l.packno  
+				INNER JOIN jobs3 AS j ON l.codex = j.codex     
+			WHERE j.proj = ?                             
+			ORDER BY s.packno'''
+	
+	curs = execute_query(sql, parms = [projectCode])		
+	data = curs.fetchall()				
+		
+	softwarePackageList = []
+	
+	for row in data:
+		softwarePackage = SoftwarePackage(row)
+		softwarePackageList.append(softwarePackage)	
+	
+	sql = '''SELECT budget_type, budget_original, budget_revised, budget_actual, budget_forecast 
+			  FROM budget                                  
+			WHERE project_code = ?                             
+			ORDER BY budget_type'''
+	
+	curs = execute_query(sql, parms = [projectCode])		
+	data = curs.fetchall()				
+		
+	budgetList = []
+	
+	for row in data:
+		budget = Budget(row)
+		budgetList.append(budget)	
+	
+	sql = '''SELECT effort_type, effort_original, effort_revised, effort_actual, effort_forecast 
+			  FROM effort                                  
+			WHERE project_code = ?                             
+			ORDER BY effort_type'''
+	
+	curs = execute_query(sql, parms = [projectCode])		
+	data = curs.fetchall()				
+		
+	effortList = []
+	
+	for row in data:
+		effort = Effort(row)
+		effortList.append(effort)	
+		
+	return render_template("projects-detail.html",title = "Projects - " + projectCode, project=project, milestoneList=milestoneList, softwarePackageList=softwarePackageList, effortList=effortList, budgetList=budgetList)

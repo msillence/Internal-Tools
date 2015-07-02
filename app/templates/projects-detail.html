@@ -1,0 +1,199 @@
+{% extends "projects.html" %}{% block content %}
+
+	<div >
+		<h1 class="projectindent">{{project.projectCode}} - {{project.description}}</h1> 
+		<span class="{{project.riskLevel}} status">Current Status:
+			{% if project.riskLevel == 'G' %} Green {% endif %}
+			{% if project.riskLevel == 'A' %} Amber {% endif %}
+			{% if project.riskLevel == 'R' %} Red {% endif %}
+		
+		</span>
+	</div>
+
+		<div>
+
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#milestones" aria-controls="milestones" role="tab" data-toggle="tab">Milestones</a></li>
+    <li role="presentation"><a href="#resources" aria-controls="resources" role="tab" data-toggle="tab">Resources</a></li>
+    <li role="presentation"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">Notes</a></li>
+    <li role="presentation"><a href="#softwarepackages" aria-controls="softwarepackages" role="tab" data-toggle="tab">Software Packages</a></li>
+	<li role="presentation"><a href="#budget" aria-controls="budget" role="tab" data-toggle="tab">Budget</a></li>
+	<li role="presentation"><a href="#effort" aria-controls="effort" role="tab" data-toggle="tab">Effort</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+  
+    <div role="tabpanel" class="tab-pane active" id="milestones">
+		{% if milestoneList %}
+		<table class="table table-bordered table-responsive tableprojects">
+			<thead>
+				<tr>
+					<th>Milestone</th>
+					<th>Baseline</th>
+					<th>Current</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for milestone in milestoneList %}
+				<tr>
+					<td>{{milestone.description}}</td>
+					<td>{{milestone.baseline}}</td>
+					<td>{{milestone.current}}</td>
+					<td>{{milestone.riskLevel}}</td>
+				</tr>				
+				{% endfor %}				
+			<tbody>
+		</table>
+		{% else %}
+		 No project milestones
+		{% endif%}
+	</div>
+	
+    <div role="tabpanel" class="tab-pane" id="resources">
+		<table class="table table-bordered table-responsive tableprojects">
+			<thead>
+				<tr>
+					<th>Role</th>
+					<th>Resource</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Product Owner</td>
+					<td>{{project.productLeader}}</td>
+				</tr>	
+				<tr>
+					<td>Project Sponsor</td>
+					<td>{{project.owner}}</td>
+				</tr>		
+				<tr>
+					<td>Business Analyst</td>
+					<td>{{project.businessAnalyst}}</td>
+				</tr>		
+				<tr>
+					<td>Designer</td>
+					<td>{{project.designer}}</td>
+				</tr>		
+				<tr>
+					<td>Development Lead</td>
+					<td>{{project.teamLeader}}</td>
+				</tr>		
+				<tr>
+					<td>Test Lead</td>
+					<td>{{project.testLeader}}</td>
+				</tr>						
+				<tr>
+					<td>Delivery Manager</td>
+					<td>{{project.deliveryManager}}</td>
+				</tr>						
+			<tbody>
+		</table>
+	</div>
+	
+    <div role="tabpanel" class="tab-pane" id="notes">
+		<table class="table table-bordered table-responsive tableprojects">
+			<thead>
+				<tr>
+					<th>Notes</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{project.notes|safe}}</td>
+				</tr>								
+			<tbody>
+		</table>	
+	</div>
+	
+    <div role="tabpanel" class="tab-pane" id="softwarepackages">
+		{% if softwarePackageList %}
+		<table class="table table-bordered table-responsive tableprojects">
+			<thead>
+				<tr>
+					<th>Number</th>
+					<th>Application</th>
+					<th>Status</th>
+					<th>SIT Cycle</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for softwarePackage in softwarePackageList %}
+				<tr>
+					<td>{{softwarePackage.number}}</td>
+					<td>{{softwarePackage.application}}</td>
+					<td>{{softwarePackage.status}}</td>
+					<td>{{softwarePackage.release}}</td>
+				</tr>				
+				{% endfor %}				
+			<tbody>
+		</table>
+		{% else %}
+		 <p class="indented">No software packages</p>
+		{% endif%}
+	</div>
+	
+    <div role="tabpanel" class="tab-pane" id="budget">
+		{% if budgetList %}
+		<table class="table table-bordered table-responsive tableprojects">
+			<thead>
+				<tr>
+					<th>Budget Type</th>
+					<th>Original</th>
+					<th>Revised</th>
+					<th>Actual</th>
+					<th>Forecast</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for budget in budgetList %}
+				<tr>
+					<td>{{budget.type}}</td>
+					<td>{{budget.original}}</td>
+					<td>{{budget.revised}}</td>
+					<td>{{budget.actual}}</td>
+					<td>{{budget.forecast}}</td>
+				</tr>				
+				{% endfor %}				
+			<tbody>
+		</table>
+		{% else %}
+		 No budgets
+		{% endif%}
+	</div>	
+	
+   <div role="tabpanel" class="tab-pane" id="effort">
+		{% if effortList %}
+		<table class="table table-bordered table-responsive tableprojects">
+			<thead>
+				<tr>
+					<th>Effort Type</th>
+					<th>Original (Days)</th>
+					<th>Revised (Days)</th>
+					<th>Actual (Days)</th>
+					<th>Forecast (Days)</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for effort in effortList %}
+				<tr>
+					<td>{{effort.type}}</td>
+					<td>{{effort.original}}</td>
+					<td>{{effort.revised}}</td>
+					<td>{{effort.actual}}</td>
+					<td>{{effort.forecast}}</td>
+				</tr>				
+				{% endfor %}				
+			<tbody>
+		</table>
+		{% else %}
+		 No budgets
+		{% endif%}
+	</div>		
+	
+  </div>
+
+</div>
+{% endblock %}

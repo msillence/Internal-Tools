@@ -5,7 +5,7 @@
     <title>JHC Internal Tools</title>
 	
 	<link rel="stylesheet" type=text/css href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-	<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='jobs-css.css') }}">
+	<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='css.css') }}">
 	
   </head>
 
@@ -18,7 +18,7 @@
 		</ul>{% endif %}
 		{% endwith %}		
 
-	<form  method="POST" action="{{url_for('login')}}" >
+	<form  method="POST" action="{{url_for('login', url=url)}}" >
 		<h2>Please enter your Tracey username and password</h2>
 		{{form.csrf_token}}
 	  <div class="form-group">

@@ -31,8 +31,20 @@ caption , h2{
 	padding: 8px; 
 }
 
+.projectindent {
+	color: #ff6c00;
+	margin-top: 0px;
+	margin-bottom: 15px;
+	margin-left: 30px;
+	display: inline-block;
+}
+
 h4 {
 	padding-bottom: 10px;
+}
+
+tab-content, nav-tabs{
+	width: 75%;
 }
 
 label {
@@ -54,6 +66,7 @@ label {
 }
 
 a:-webkit-any-link{ 
+	color: white;
 	text-decoration:none; 
 }
 
@@ -74,7 +87,7 @@ a:-webkit-any-link{
 	background-color: white;
 }
 
-table {
+.tablejobs {
 	background-color: #546b79;
 	width: 75% !important;
 	color: white;
@@ -82,7 +95,14 @@ table {
 	display: block;
 }
 
-tbody>tr:hover:not(.nohover) {
+.tableprojects {
+	background-color: #546b79;
+	color: white;
+	margin: 20px;
+	display: block;
+}
+
+.tablejobs tbody>tr:hover:not(.nohover) {
 	background-color: #ff6c00;
 	cursor: pointer;
 }
@@ -96,6 +116,18 @@ tbody>tr:hover:not(.nohover) {
 }
 
 .panelpriority {
+	float: right;
+}
+
+.floatright {
+	float: right;
+}
+
+.floatleft {
+	float: left;
+}
+
+.panelclient {
 	float: right;
 }
 
@@ -130,4 +162,47 @@ span {
 	background: url('ajax-loader.gif') 50% 50% no-repeat;
 	background-size: 100px 100px;
 	z-index: 9999;
+}
+
+.g {
+	background-color: green;
+}
+
+.r {
+	background-color: red;
+}
+
+.a {
+	background-color: #FFBF00;
+}
+
+.indented {
+	margin-left: 50px;
+	margin-top: 10px;
+}
+
+.panel-group .panel {
+	margin-bottom: 5px;
+}
+
+.tab-pane {
+	color: white;
+	float: left;
+}
+
+.status {
+	padding: 5px;
+	border-radius: 5px;
+	float: right;
+	margin-right: 30px;
+}
+
+.typeahead {
+	width: 200px;
+	color: black;
+}
+
+#projectsearch {
+	margin: 0 auto;
+	text-align:center;
 }
