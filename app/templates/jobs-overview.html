@@ -1,4 +1,12 @@
-{% extends "jobs.html" %}{% block content %}
+{% extends "base.html" %}
+
+{% block menu %}
+	<li><a href="{{url_for('overview')}}">Overview</a></li>
+	<li><a href="{{url_for('job_list')}}">Job List</a></li>
+	<li><a href="{{url_for('history')}}">History</a></li>
+{% endblock %}
+
+{% block content %}
 	
 		<div class="row">
 
@@ -41,7 +49,7 @@
 					</thead>
 					<tbody>
 						{% for status in statusList %}
-						<tr data-href="{{url_for('job_list', status = status.name)}}">
+						<tr data-href="{{url_for('job_list', status = status.letter)}}">
 							<td>{{status.name}} </td>
 							<td>{{status.numberOfJobs}} </td>
 						</tr>	

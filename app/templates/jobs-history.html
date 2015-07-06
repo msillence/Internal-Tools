@@ -1,4 +1,12 @@
-{% extends "jobs.html" %}{% block content %}
+{% extends "base.html" %}
+
+{% block menu %}
+	<li><a href="{{url_for('overview')}}">Overview</a></li>
+	<li><a href="{{url_for('job_list')}}">Job List</a></li>
+	<li><a href="{{url_for('history')}}">History</a></li>
+{% endblock %}
+
+{% block content %}
 
 <h2>Open Job Count History (P1/P2)</h2>
 

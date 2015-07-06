@@ -1,4 +1,12 @@
-{% extends "jobs.html" %}{% block content %}
+{% extends "base.html" %}
+
+{% block menu %}
+	<li><a href="{{url_for('overview')}}">Overview</a></li>
+	<li><a href="{{url_for('job_list')}}">Job List</a></li>
+	<li><a href="{{url_for('history')}}">History</a></li>
+{% endblock %}
+
+{% block content %}
 
 		<div class="filter container">
 			<form class="form-inline">
@@ -39,7 +47,7 @@
 			    	<label for="status">Status</label>
 			    	<select class="form-control" id="status" value="{{filterOptions.status}}">
 			    		<option>All</option>
-						{% for status in statusList %}<option {% if status.name == filterOptions.status %}selected {% endif %}>{{status.name}}</option>{% endfor %}  	  	
+						{% for status in statusList %}<option value="{{status.letter}}" {% if status.letter == filterOptions.status %}selected {% endif %}>{{status.name}}</option>{% endfor %}  	  	
 					</select>
 			  	</div>							
 			</form>
@@ -59,7 +67,7 @@
 				    	</div>
 			    	</a>
 				    <div id="J{{job.number}}" class="panel-collapse collapse" role="tabpanel">
-				    	<span class="paddedspan">Client: </span><span class="panelclient">{{job.client}}</span>
+				    	<span class="paddedspan">Client: </span><span>{{job.client}}</span>
 				    	<span class="paddedspan">Assigned To: </span><span class="panelassignedto">{{job.assignedTo}}</span>
 						<span class="paddedspan">Functional Area: </span><span class="panelfunctionalarea">{{job.functionalArea}}</span>
 						<span class="paddedspan">Status: </span><span class="panelstatus">{{job.status}}</span>

@@ -1,26 +1,61 @@
-{% extends "projects.html" %}{% block content %}
+{% extends "base.html" %}{% block content %}
 	
 		<div id="projectsearch" class="wrapper">
 			<h2>Search for projects</h2>
-			<input class="typeahead" type="text" placeholder="Projects">
+			<form id="form" method="POST">
+			<input name="project" class="typeahead projects" type="text" placeholder="Projects">
+			</form>
 		</div>
 		
 		
 		<script>
-			var projects = new Bloodhound({
-			  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-			  queryTokenizer: Bloodhound.tokenizers.whitespace,
-			  remote: {
-				url: '{{url_for("projectSearch")}}?query=%QUERY',
-				wildcard: '%QUERY'
-			  }
-			});
-			 
-			$('#projectsearch .typeahead').typeahead(null, {
-			  name: 'projects',
-			  display: 'value',
-			  source: projects
-			});
+		
+var projects = new Bloodhound({
+    datumTokenizer: function (datum) {
+        return Bloodhound.tokenizers.whitespace(datum.Name);
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+        url: "{{url_for('projectSearch')}}?query=%QUERY",
+		wildcard: '%QUERY',
+        filter: function (data) {
+            return $.map(data, function(project) {
+                return {
+                    id: project.id.trim(), label: project.label
+                };
+            });
+        }
+    }
+});
+
+$(function() {
+
+    projects.initialize();
+
+    $('#projectsearch .typeahead').typeahead({
+        hint: true,
+        highlight: false,
+        minLength: 1
+    }, {
+        name: 'Projects',
+        displayKey: 'id',
+        source: projects.ttAdapter(),
+		limit: 8,
+        templates: {
+            empty: [
+            '<div class="empty-message">',
+            'Unable to find any results that match the current query',
+            '</div>'
+            ].join('\n'),
+            suggestion: function(data) {
+					return '<p>' + data.id + ' - ' + data.label + '</p>';}
+        }
+    }).on('typeahead:selected', function(e, data) {
+  $('#form').submit();
+});
+
+});
+	
 		
 		</script>
 {% endblock %}

@@ -32,6 +32,12 @@ def execute_query(sql, parms = []):
 	cursor            = connection.cursor()	
 	return cursor.execute(sql, parms)
 
+class Title:
+	
+	def __init__ (self, main, subTitle):
+		self.main = main
+		self.full = main + ' - ' + subTitle
+	
 # FST Job List
 class Job:
 
@@ -77,8 +83,27 @@ class ProjectManager:
 class Status:
 
 	def __init__(self, name, numberOfJobs = 0):
-		self.name = name
-		self.numberOfJobs = numberOfJobs					
+		if name == 'A':
+			self.name = 'Awaiting Assignment'
+		elif name == 'B':
+			self.name = 'Assigned'
+		elif name == 'C':
+			self.name = 'Closed'
+		elif name == 'E':
+			self.name = 'Fixed in Client Environment'
+		elif name == 'H':
+			self.name = 'On Hold'
+		elif name == 'K':
+			self.name = 'Requires Code Fix'
+		elif name == 'T':
+			self.name = 'In Test'
+		elif name == 'W':
+			self.name = 'Waiting'
+		else:
+			self.name = name
+		
+		self.numberOfJobs = numberOfJobs	
+		self.letter = name
 		
 class FilterOptionsJobs:
 
@@ -397,7 +422,7 @@ def job_list():
 		status = Status(row[0])
 		statusList.append(status)	
 	
-	return render_template("jobs-list.html", jobList = jobList, clientList = clientList, functionalAreaList = functionalAreaList, statusList = statusList, filterOptions = filterOptions, title="FST Jobs - Jobs List")
+	return render_template("jobs-list.html", jobList = jobList, clientList = clientList, functionalAreaList = functionalAreaList, statusList = statusList, filterOptions = filterOptions, title=Title('FST Jobs', 'Jobs List'))
 
 @app.route("/jobs/overview", methods = ["GET"])
 def overview():
@@ -498,7 +523,7 @@ def overview():
 	quarterlyAverageResolution = 0
 	
 		
-	return render_template("jobs-overview.html", areaList = areaList, priorityList = getPriorityData(), clientList=clientList, statusList=statusList, total=total, monthlyJobsOpened=monthlyJobsOpened, monthlyJobsClosed=monthlyJobsClosed, monthlyAverageResolution=monthlyAverageResolution, quarterlyJobsOpened=quarterlyJobsOpened, quarterlyJobsClosed=quarterlyJobsClosed, quarterlyAverageResolution=quarterlyAverageResolution, title="FST Jobs - Overview")
+	return render_template("jobs-overview.html", areaList = areaList, priorityList = getPriorityData(), clientList=clientList, statusList=statusList, total=total, monthlyJobsOpened=monthlyJobsOpened, monthlyJobsClosed=monthlyJobsClosed, monthlyAverageResolution=monthlyAverageResolution, quarterlyJobsOpened=quarterlyJobsOpened, quarterlyJobsClosed=quarterlyJobsClosed, quarterlyAverageResolution=quarterlyAverageResolution, title=Title('FST Jobs', 'Overview'))
 
 @app.route("/jobs/history", methods = ["GET"])
 def history():	
@@ -506,7 +531,7 @@ def history():
 	if not logged_in():
 		return redirect(url_for('login', url = url_for('history')))	
 		
-	return render_template("jobs-history.html", title="FST Jobs - History")
+	return render_template("jobs-history.html", title=Title('FST Jobs', 'History'))
 
 @app.route("/jobs/history_chart", methods = ["GET"])
 def history_chart():	
@@ -628,7 +653,7 @@ def releases():
 		release = Release(row[0], row[1])
 		releaseList.append(release)
 		
-	return render_template("releases-main.html", releaseList = releaseList, title="Releases - Overview")
+	return render_template("releases-main.html", releaseList = releaseList, title=Title('Releases', 'Overview'))
 
 @app.route('/releases/<release>')
 def projectsByRelease(release):
@@ -694,7 +719,7 @@ def projectsByRelease(release):
 	projectManagerList = sorted(projectManagerList, key=lambda projectManager: projectManager.name)
 	clientList = sorted(clientList, key=lambda client: client.name)
 	
-	return render_template("releases-list.html", projectList = projectList, title="Releases - " + release, clientList = clientList, filterOptions = filterOptions, projectManagerList = projectManagerList)
+	return render_template("releases-list.html", projectList = projectList, title=Title('Releases', release), clientList = clientList, filterOptions = filterOptions, projectManagerList = projectManagerList)
 	
 #############################################
 # Projects
@@ -710,8 +735,8 @@ def projectSearch():
 
 	sql = '''SELECT DISTINCT procde, desc
 				FROM project
-			WHERE procde LIKE '%'  || ?  || '%'
-			   OR desc LIKE '%'  || ? || '%'
+			WHERE upper(procde) LIKE '%'  || ?  || '%'
+			   OR upper(desc) LIKE '%'  || ? || '%'
 			ORDER BY procde'''	
 			
 	curs = execute_query(sql, parms = [query, query])		
@@ -727,14 +752,18 @@ def projectSearch():
 		
 	return json.dumps(results)
 	
-@app.route('/projects/<projectCode>')
+@app.route('/projects/<projectCode>', methods = ["GET", "POST"])
 def projectDetail(projectCode):
 	
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('projectDetail')))	
+		return redirect(url_for('login', url = url_for('projectDetail', projectCode='OVERVIEW')))	
 	
 	if projectCode.upper() == 'OVERVIEW':
-		return render_template("projects-overview.html",title = "Projects - Overview")
+		
+		if request.method == 'POST':		
+			return redirect(url_for('projectDetail', projectCode = request.form['project']))
+	
+		return render_template("projects-overview.html",title=Title('Projects', 'Overview'))
 
 	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.risk_level, 'G'), t1.tename, t2.tename, 
 	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
@@ -813,4 +842,15 @@ def projectDetail(projectCode):
 		effort = Effort(row)
 		effortList.append(effort)	
 		
-	return render_template("projects-detail.html",title = "Projects - " + projectCode, project=project, milestoneList=milestoneList, softwarePackageList=softwarePackageList, effortList=effortList, budgetList=budgetList)
+	return render_template("projects-detail.html",title=Title('Projects', projectCode), project=project, milestoneList=milestoneList, softwarePackageList=softwarePackageList, effortList=effortList, budgetList=budgetList)
+
+@app.route('/knowledge')
+def knowledge():
+	
+	if not logged_in():
+		return redirect(url_for('login', url = url_for('knowledge')))	
+
+	return render_template("knowledge-overview.html",title=Title('Knowledge', 'Overview')) 
+
+
+		
