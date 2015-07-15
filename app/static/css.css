@@ -9,12 +9,25 @@ body {
 	overflow-x: hidden;
 }
 
+p {
+	color: white;
+}
+
 .panel-group .panel-heading {
     color: white;
     background-color: transparent;
     padding: 8px;
 }
-			
+
+.centredrow {
+	margin:auto;
+	max-width:50%;
+}
+		
+.align-right {
+	text-align:right;
+}		
+
 .wrapper {
 	position:absolute;
 	top:30%;
@@ -29,6 +42,16 @@ caption , h2{
 	text-align: center;
 	font-size: 24px;
 	padding: 8px; 
+}
+
+h3 {
+	color: #ff6c00;
+	font-size: 24px;
+	padding-bottom: 8px; 
+}
+
+h4 {
+	color: white;
 }
 
 .projectindent {

@@ -1,6 +1,7 @@
 from flask import render_template, request, Response, session, url_for, flash, redirect
 from flask.ext.wtf import Form
 from numbers import Number
+from itertools import groupby
 from datetime import datetime
 from wtforms import TextField, PasswordField, validators
 from urllib import parse
@@ -15,12 +16,16 @@ class LoginForm(Form):
 
 def logged_in():
 
-	if 'username' not in session or 'password' not in session:
+	if 'username' not in session or 'password' not in session or session['username'] == None or session['password'] == None:
 		return False
 		
 	try:
 		execute_query('SELECT * FROM sysibm.sysdummy1')
 	except pyodbc.Error as err:
+		if 'username' in session:
+			session['username'] = None
+		if 'password' in session:	
+			session['password'] = None
 		return False
 		
 	return True			
@@ -29,7 +34,7 @@ def execute_query(sql, parms = []):
 
 	connection_string = 'DSN=TRACEY;UID=' + session['username'] + ';PWD=' + session['password'] + ';CHARSET=UTF8;'
 	connection        = pyodbc.connect(connection_string, autocommit=True)
-	cursor            = connection.cursor()	
+	cursor            = connection.cursor()
 	return cursor.execute(sql, parms)
 
 class Title:
@@ -842,15 +847,108 @@ def projectDetail(projectCode):
 		effort = Effort(row)
 		effortList.append(effort)	
 		
-	return render_template("projects-detail.html",title=Title('Projects', projectCode), project=project, milestoneList=milestoneList, softwarePackageList=softwarePackageList, effortList=effortList, budgetList=budgetList)
-
+	return render_template("projects-detail.html",title=Title('Projects', projectCode), project=project, milestoneList=milestoneList, softwarePackageList=softwarePackageList, effortList=effortList, budgetList=budgetList)	
+	
+	
+	
 @app.route('/knowledge')
 def knowledge():
 	
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('knowledge')))	
-
+		return redirect(url_for('login', url = url_for('knowledge')))		
+		
 	return render_template("knowledge-overview.html",title=Title('Knowledge', 'Overview')) 
 
+	
+class Language():
+	
+	def __init__(self, id, description, score):
+		self.id = id
+		self.description = description
+		self.score = score
+	
+class FunctionalArea():
 
+	def __init__ (self, id, description, score, languages):
+		self.id = id
+		self.description = description
+		self.score = score
+		self.languages = languages
+	
+@app.route('/knowledge/update')
+def knowledgeUpdate():
+	
+	if not logged_in():
+		return redirect(url_for('login', url = url_for('knowledgeUpdate')))		
+	
+	sql = '''SELECT teear FROM tearner WHERE teuser = ?'''
+	curs = execute_query(sql, parms = [session['username']])
+	data = curs.fetchall()
+	earner = data[0][0]
+	
+	sql = '''SELECT a.area_description, b.functional_area, COALESCE(e.functional_rating, 'E'), b.language, c.language_description, COALESCE(d.techincal_rating, 5)
+			FROM sutil.employee_knowledge_area_language AS b
+			   INNER JOIN  sutil.employee_knowledge_area AS a ON a.functional_area = b.functional_area
+			   INNER JOIN  sutil.employee_knowledge_language AS c ON b.language = c.language
+			   LEFT OUTER JOIN sutil.employee_knowledge_technical AS d ON b.functional_area = d.functional_area
+			                                                           AND b.language = d.language
+																	   AND d.earner = ?
+			   LEFT OUTER JOIN sutil.employee_knowledge_functional AS e ON b.functional_area = e.functional_area  
+			                                                           AND e.earner = ?
+			ORDER BY a.area_description'''
+	
+	curs = execute_query(sql, parms = [earner, earner])
+	data = curs.fetchall()
+	
+	areaList = []
+	for key, row in groupby(data, lambda x:x[0]):
+	
+		groupedArea = list(row)
 		
+		languages = []		
+		for entry in groupedArea:
+			languages.append(Language(entry[3], entry[4], entry[5]))
+			
+		areaList.append(FunctionalArea(groupedArea[0][1], groupedArea[0][0], groupedArea[0][2], languages))	
+	
+	return render_template("knowledge-update.html",title=Title('Knowledge', 'Update'), areaList=areaList)
+	
+@app.route('/knowledge/update/postf', methods = ["POST"])
+def knowledgeUpdateFunctionalPost():	
+	
+	sql = '''SELECT teear FROM tearner WHERE teuser = ?'''
+	curs = execute_query(sql, parms = [session['username']])
+	data = curs.fetchall()
+	earner = data[0][0]	
+	
+	sql = '''MERGE INTO sutil.employee_knowledge_functional AS t 
+				  USING (SELECT CAST(? AS CHAR(4)) AS earner, CAST(? AS INT) AS functional_area, CAST(? AS CHAR(1)) AS functional_rating FROM sysibm.sysdummy1) AS s
+				ON s.earner = t.earner
+				AND s.functional_area = t.functional_area
+			  WHEN MATCHED THEN UPDATE SET t.functional_rating = s.functional_rating
+			  WHEN NOT MATCHED THEN INSERT (earner, functional_area, functional_rating) VALUES (s.earner, s.functional_area, s.functional_rating)'''
+	
+	execute_query(sql, parms = [earner, request.form['area'], request.form['score']])	
+	
+	return 'ok'
+	
+@app.route('/knowledge/update/postt', methods = ["POST"])
+def knowledgeUpdateTechnicalPost():	
+	
+	sql = '''SELECT teear FROM tearner WHERE teuser = ?'''
+	curs = execute_query(sql, parms = [session['username']])
+	data = curs.fetchall()
+	earner = data[0][0]	
+	
+	sql = '''MERGE INTO sutil.employee_knowledge_technical AS t 
+				  USING (SELECT CAST(? AS CHAR(4)) AS earner, CAST(? AS INT) AS functional_area, CAST(? AS INT) AS language, CAST(? AS DEC(1)) AS technical_rating FROM sysibm.sysdummy1) AS s
+				ON s.earner = t.earner
+				AND s.functional_area = t.functional_area
+				AND s.language = t.language
+			  WHEN MATCHED THEN UPDATE SET t.techincal_rating = s.technical_rating
+			  WHEN NOT MATCHED THEN INSERT (earner, functional_area, language, techincal_rating) VALUES (s.earner, s.functional_area, s.language, s.technical_rating)'''
+	
+	execute_query(sql, parms = [earner, request.form['area'], request.form['language'], request.form['score']])	
+	
+	return 	'ok'
+	
