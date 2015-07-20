@@ -1,4 +1,12 @@
-{% extends "base.html" %}{% block content %}
+{% extends "base.html" %}
+
+{% block menu %}
+	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>
+	<li><a href="{{url_for('knowledge.update')}}">Update</a></li>
+{% endblock %}
+
+
+{% block content %}
 	
 
 {% endblock %}

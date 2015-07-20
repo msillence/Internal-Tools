@@ -16,7 +16,7 @@ def overview():
 	return render_template("knowledge/overview.html", title="Knowledge") 
 	
 @mod.route('/update')
-def knowledgeUpdate():
+def update():
 	
 	if not logged_in():
 		return redirect(url_for('login', url = url_for('knowledgeUpdate')))		
