@@ -1,0 +1,91 @@
+{% extends "base.html" %}{% block content %}
+	
+		<script>
+		
+			function saveFunctionalData(area, sub_area, score) {
+				var data = {area:area,sub_area:sub_area,score:score};
+				
+				$.ajax({
+					url : "{{ url_for('knowledge.updateFunctionalPost')}}",
+					type: "POST",
+					data : data
+				});
+			
+			};
+		
+			function saveTechnicalData(area, sub_area, language, score) {
+				var data = {area:area,sub_area:sub_area,language:language,score:score};
+				
+				$.ajax({
+					url : "{{ url_for('knowledge.updateTechnicalPost')}}",
+					type: "POST",
+					data : data
+				});
+			
+			};
+			
+		</script>	
+	
+		<div class="container centredrow">
+			<form>
+				{% for area in areaList %}
+				<h3 class="inline">{{area.description}}</h3>
+				{% if area.area_wiki_link %}<a class="wiki_link" href="{{area.area_wiki_link}}">Area Wiki</a>{% endif %} 
+				{% if area.sub_area_wiki_link %}<a class="wiki_link" href="{{area.sub_area_wiki_link}}">Sub Area Wiki</a>{% endif %}
+				<div class="row">
+								
+					<div class="col-sm-6">
+						<h4>Functional Understanding<h4>
+						<div class="form-group">
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-default {% if area.score == 'A' %} active {% endif %} " onclick='saveFunctionalData({{area.area_id}}, {{area.sub_area_id}}, "A")'>
+									<input type="radio" value="A" /> A
+								</label> 
+								<label class="btn btn-default {% if area.score == 'B' %} active {% endif %} " onclick='saveFunctionalData({{area.area_id}}, {{area.sub_area_id}}, "B")'>
+									<input type="radio" value="B" /> B
+								</label> 
+								<label class="btn btn-default {% if area.score == 'C' %} active {% endif %} " onclick='saveFunctionalData({{area.area_id}}, {{area.sub_area_id}}, "C")'>
+									<input type="radio" value="C" /> C
+								</label> 
+								<label class="btn btn-default {% if area.score == 'D' %} active {% endif %} " onclick='saveFunctionalData({{area.area_id}}, {{area.sub_area_id}}, "D")'>
+									<input type="radio" value="D" /> D
+								</label> 
+								<label class="btn btn-default {% if area.score == 'E' %} active {% endif %} " onclick='saveFunctionalData({{area.area_id}}, {{area.sub_area_id}}, "E")'>
+									<input type="radio" value="E" /> E
+								</label>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-sm-6 align-right">
+						<h4>Technical Understanding<h4>
+						{% for language in area.languages %}
+						<div class="form-group">
+							<label for="_{{area.area_id}}_{{area.sub_area_id}}_{{language.id}}">{{language.description}}</label>						
+							<div class="btn-group" name="_{{area.area_id}}_{{area.sub_area_id}}_{{language.id}}" data-toggle="buttons">					
+								<label class="btn btn-default {% if language.score == 1 %} active {% endif %} " onclick='saveTechnicalData({{area.area_id}}, {{area.sub_area_id}},{{language.id}}, 1)'>
+									<input type="radio" value="1" /> 1
+								</label> 
+								<label class="btn btn-default {% if language.score == 2 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{area.sub_area_id}}, {{language.id}}, 2)'>
+									<input type="radio" value="2" /> 2
+								</label> 
+								<label class="btn btn-default {% if language.score == 3 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{area.sub_area_id}}, {{language.id}}, 3)'>
+									<input type="radio" value="3" /> 3
+								</label> 
+								<label class="btn btn-default {% if language.score == 4 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{area.sub_area_id}}, {{language.id}}, 4)'>
+									<input type="radio" value="4" /> 4
+								</label> 
+								<label class="btn btn-default {% if language.score == 5 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{area.sub_area_id}}, {{language.id}}, 5)'>
+									<input type="radio" value="5" /> 5
+								</label>
+							</div>
+						</div>
+						{% endfor %} 
+					</div>					
+					
+				</div>
+				{% endfor %} 	
+			</form>
+		</div>	
+	
+{% endblock %}

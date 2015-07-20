@@ -150,10 +150,6 @@ a:-webkit-any-link{
 	float: left;
 }
 
-.panelclient {
-	float: right;
-}
-
 .paddedspan {
 	padding-left: 15px;
 }
@@ -305,4 +301,20 @@ width: 300px;
 
 .projects::-webkit-input-placeholder { /* WebKit browsers */
     text-align:    center;
+}
+
+.wiki_link:link, a:visited {
+    display: inline-block;
+    color: #ffffff;
+    background-color: #98bf21;
+    width: 120px;
+    text-align: center;
+    padding: 4px;
+	margin-left: 15px;
+    text-decoration: none;
+}
+
+.inline{
+	display: inline-block;
+	    padding-top: 4px;
 }

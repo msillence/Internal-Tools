@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block menu %}
-	<li><a href="{{url_for('overview')}}">Overview</a></li>
-	<li><a href="{{url_for('job_list')}}">Job List</a></li>
-	<li><a href="{{url_for('history')}}">History</a></li>
+	<li><a href="{{url_for('jobs.overview')}}">Overview</a></li>
+	<li><a href="{{url_for('jobs.job_list')}}">Job List</a></li>
+	<li><a href="{{url_for('jobs.history')}}">History</a></li>
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
 					</thead>
 					<tbody>
 						{% for priority in priorityList %}
-						<tr data-href="{{url_for('job_list', priority = 'P' + priority.level)}}">
+						<tr data-href="{{url_for('jobs.job_list', priority = 'P' + priority.level)}}">
 							<td>P{{priority.level}}</td>
 							<td>{{priority.numberOfJobs}}</td>
 						</tr>
@@ -49,7 +49,7 @@
 					</thead>
 					<tbody>
 						{% for status in statusList %}
-						<tr data-href="{{url_for('job_list', status = status.letter)}}">
+						<tr data-href="{{url_for('jobs.job_list', status = status.letter)}}">
 							<td>{{status.name}} </td>
 							<td>{{status.numberOfJobs}} </td>
 						</tr>	

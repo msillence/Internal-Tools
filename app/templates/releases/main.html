@@ -5,7 +5,7 @@
 			<div class="panel-group" id="accordion">		
 				{% for release in releaseList %}				
 			  	<div class="panel panel-default">
-					<a href="{{url_for('projectsByRelease', release = release.releaseNumber)}}">
+					<a href="{{url_for('releases.projectsByRelease', release = release.releaseNumber)}}">
 				    	<div class="panel-heading">
 					      	<h4 class="panel-title">					        	
 					          	{{release.releaseNumber}} - {{release.projectCount}} Projects				        	

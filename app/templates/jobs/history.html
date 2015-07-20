@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block menu %}
-	<li><a href="{{url_for('overview')}}">Overview</a></li>
-	<li><a href="{{url_for('job_list')}}">Job List</a></li>
-	<li><a href="{{url_for('history')}}">History</a></li>
+	<li><a href="{{url_for('jobs.overview')}}">Overview</a></li>
+	<li><a href="{{url_for('jobs.job_list')}}">Job List</a></li>
+	<li><a href="{{url_for('jobs.history')}}">History</a></li>
 {% endblock %}
 
 {% block content %}

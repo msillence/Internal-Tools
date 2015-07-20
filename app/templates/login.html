@@ -12,25 +12,27 @@
   <body>
 
 	<div class="wrapper">
+	
 		{% with messages = get_flashed_messages() %}{% if messages %}
 		<ul class="flashes alert alert-danger">{% for message in messages %}
 			<li>{{ message }}</li>{% endfor %}
 		</ul>{% endif %}
 		{% endwith %}		
 
-	<form  method="POST" action="{{url_for('login', url=url)}}" >
-		<h2>Please enter your Tracey username and password</h2>
-		{{form.csrf_token}}
-	  <div class="form-group">
-		{{ form.username.label }}
-		{{ form.username }}
-	  </div>
-	  <div class="form-group">
-		{{ form.password.label }}
-		{{ form.password() }}
-	  </div>
-	  <button type="submit" class="btn btn-default">Submit</button>
-	</form>
+		<form  method="POST" action="{{url_for('base.login', url=url)}}" >
+			<h2>Please enter your Tracey username and password</h2>
+			{{form.csrf_token}}
+		  <div class="form-group">
+			{{ form.username.label }}
+			{{ form.username }}
+		  </div>
+		  <div class="form-group">
+			{{ form.password.label }}
+			{{ form.password() }}
+		  </div>
+		  <button type="submit" class="btn btn-default">Submit</button>
+		</form>
+		
 	</div>
 	
   </body>

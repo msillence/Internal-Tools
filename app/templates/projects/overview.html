@@ -16,7 +16,7 @@ var projects = new Bloodhound({
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-        url: "{{url_for('projectSearch')}}?query=%QUERY",
+        url: "{{url_for('projects.projectSearch')}}?query=%QUERY",
 		wildcard: '%QUERY',
         filter: function (data) {
             return $.map(data, function(project) {

@@ -1,4 +1,4 @@
-{% extends "files-base.html" %}{% block content %}
+{% extends "files/base.html" %}{% block content %}
 	
 	{% with messages = get_flashed_messages() %}{% if messages %}
 		<ul class="flashes alert alert-danger">{% for message in messages %}
@@ -37,7 +37,7 @@
 				"sPaginationType": "full_numbers",
 				"sScrollX": "100%",
 				"tableTools": {"sSwfPath": "{{ url_for('static', filename='copy_csv_xls_pdf.swf') }}", "aButtons": [ "copy", "csv" ]},
-				"sAjaxSource": "{{url_for('get_data', library = library, table = table)}}"
+				"sAjaxSource": "{{url_for('files.get_data', library = library, table = table)}}"
 			} ).columnFilter({"bUseColVis": true});
 			
 			oTable.fnSetColumnVis( 0, false );

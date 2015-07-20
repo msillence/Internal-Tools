@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block menu %}
-	<li><a href="{{url_for('overview')}}">Overview</a></li>
-	<li><a href="{{url_for('job_list')}}">Job List</a></li>
-	<li><a href="{{url_for('history')}}">History</a></li>
+	<li><a href="{{url_for('jobs.overview')}}">Overview</a></li>
+	<li><a href="{{url_for('jobs.job_list')}}">Job List</a></li>
+	<li><a href="{{url_for('jobs.history')}}">History</a></li>
 {% endblock %}
 
 {% block content %}
@@ -67,7 +67,7 @@
 				    	</div>
 			    	</a>
 				    <div id="J{{job.number}}" class="panel-collapse collapse" role="tabpanel">
-				    	<span class="paddedspan">Client: </span><span>{{job.client}}</span>
+				    	<span class="paddedspan">Client: </span><span class="panelclient">{{job.client}}</span>
 				    	<span class="paddedspan">Assigned To: </span><span class="panelassignedto">{{job.assignedTo}}</span>
 						<span class="paddedspan">Functional Area: </span><span class="panelfunctionalarea">{{job.functionalArea}}</span>
 						<span class="paddedspan">Status: </span><span class="panelstatus">{{job.status}}</span>
@@ -84,7 +84,7 @@
 		<script type="text/javascript">
 
 			function loadJobText(jobNumber) {
-			   $( "#JT" + jobNumber ).load( "{{url_for('job_detail')}}/" + jobNumber);
+			   $( "#JT" + jobNumber ).load( "{{url_for('jobs.job_detail')}}/" + jobNumber);
 			};
 		
 		    function changeUrl(page, url) {
