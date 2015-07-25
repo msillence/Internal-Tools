@@ -4,13 +4,13 @@ import json
 from app.projects.models import Project, Milestone, SoftwarePackage, Budget, Effort
 from app.views import logged_in, login, execute_query
 
-mod = Blueprint('projects', __name__, url_prefix='/projects')
+mod = Blueprint('projects', __name__, url_prefix='/projects/')
 
-@mod.route('/search')
+@mod.route('search')
 def projectSearch():
 
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('projects.projectSearch')))
+		return redirect(url_for('base.login', url = url_for('projects.projectSearch')))
 
 	query = request.args.get('query')
 	query = query.strip().upper()
@@ -34,7 +34,7 @@ def projectSearch():
 		
 	return json.dumps(results)
 	
-@mod.route('/overview', methods = ["GET", "POST"])
+@mod.route('overview', methods = ["GET", "POST"])
 def overview():	
 	
 		if request.method == 'POST':		
@@ -42,11 +42,11 @@ def overview():
 	
 		return render_template("projects/overview.html", title="Projects")	
 	
-@mod.route('/byprojectcode/<projectCode>')
+@mod.route('byprojectcode/<projectCode>')
 def projectDetail(projectCode):
 	
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('projects.overview')))
+		return redirect(url_for('base.login', url = url_for('projects.overview')))
 
 	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.risk_level, 'G'), t1.tename, t2.tename, 
 	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes

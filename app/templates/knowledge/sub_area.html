@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block menu %}
+	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>
+	<li><a href="{{url_for('knowledge.update', areaID = 1)}}">Update</a></li>
+{% endblock %}
+
+
+{% block content %}
+	<h2>{{area_description}} - {{subArea.description}}</h2>
+	
+	{% for language in subArea.languages  %}
+
+	{% endfor %}
+
+{% endblock %}

@@ -35,7 +35,7 @@ def getPriorityData():
 def job_list():
 
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('jobs.job_list')))	
+		return redirect(url_for('base.login', url = url_for('jobs.job_list')))	
 
 	queryString = parse.unquote(request.query_string.decode("utf-8"))
 	parameters = {}
@@ -239,7 +239,7 @@ def overview():
 def history():	
 
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('jobs.history')))	
+		return redirect(url_for('base.login', url = url_for('jobs.history')))	
 		
 	return render_template("jobs/history.html", title="FST Jobs")
 

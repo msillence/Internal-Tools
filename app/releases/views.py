@@ -10,7 +10,7 @@ mod = Blueprint('releases', __name__, url_prefix='/releases')
 def overview():
 
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('releases.overview')))
+		return redirect(url_for('base.login', url = url_for('releases.overview')))
 
 	sql = '''SELECT a.release_number, count(r.release_number)
 			FROM jhcjutil.release_number_description AS a
@@ -39,7 +39,7 @@ def overview():
 def projectsByRelease(release):
 
 	if not logged_in():
-		return redirect(url_for('login', url = url_for('releases.projectsByRelease')))
+		return redirect(url_for('base.login', url = url_for('releases.projectsByRelease')))
 
 	queryString = parse.unquote(request.query_string.decode("utf-8"))
 	parameters = {}

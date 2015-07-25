@@ -25,6 +25,7 @@ def execute_query(sql, parms = []):
 
 	connection_string = 'DSN=TRACEY;UID=' + session['username'] + ';PWD=' + session['password'] + ';CHARSET=UTF8;'
 	connection        = pyodbc.connect(connection_string, autocommit=True)
+	pyodbc.lowercase  = True
 	cursor            = connection.cursor()
 	return cursor.execute(sql, parms)
 		

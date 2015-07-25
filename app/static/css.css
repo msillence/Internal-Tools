@@ -303,18 +303,48 @@ width: 300px;
     text-align:    center;
 }
 
-.wiki_link:link, a:visited {
-    display: inline-block;
+.knowledge-table {
+	position: fixed;
+	width: 20%;
+	color: white;
+	margin-left: 20px;
+}
+
+.knowledge-table-right {
+	right:0;
+	margin-right:20px;
+}
+
+.previous {
     color: #ffffff;
     background-color: #98bf21;
     width: 120px;
     text-align: center;
     padding: 4px;
-	margin-left: 15px;
+	float:left;
     text-decoration: none;
+	margin-left:10px;
 }
 
-.inline{
-	display: inline-block;
-	    padding-top: 4px;
+.next {
+    color: #ffffff;
+    background-color: #98bf21;
+    width: 120px;
+    text-align: center;
+    padding: 4px;
+	float:right;
+    text-decoration: none;
+	margin-right: 10px;
+}
+
+.functionalArea {
+	color: white;
+	background-color: #546b79;
+	text-align: center;
+	padding: 8px;
+}
+
+.functionalArea:hover{
+	cursor: pointer;
+	background-color: #ff6c00;
 }
