@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block menu %}
-	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>	
+	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>
 	<li><a href="{{url_for('knowledge.areas')}}">Areas</a></li>
 	<li><a href="{{url_for('knowledge.codeGuardians')}}">Code Guardians</a></li>
 	<li><a href="{{url_for('knowledge.update', areaID = 1)}}">Update</a></li>
@@ -9,12 +9,12 @@
 
 
 {% block content %}
-	<h2>{{area_description}}</h2>
+	<h2>Functional Areas</h2>
 	
-	{% for column in subAreas | slice(4) %}
+	{% for column in functionalAreas | slice(4) %}
 		<div class="col-sm-3">
-		{%- for subArea in column -%}
-		<a href="{{url_for('knowledge.subAreaByID', areaID = areaID, subAreaID = subArea.sub_area_id)}}"><h3 class="functionalArea">{{ subArea.description }}</h3></a>
+		{%- for area in column -%}
+		<a href="{{url_for('knowledge.areaByID', areaID = area.area_id)}}"><h3 class="functionalArea">{{ area.description }}</h3></a>
 		{% endfor %}
 		</div>
 	{% endfor %}

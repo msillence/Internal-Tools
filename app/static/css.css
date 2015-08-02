@@ -348,3 +348,44 @@ width: 300px;
 	cursor: pointer;
 	background-color: #ff6c00;
 }
+
+.tableknowledge{
+	color: white;
+}
+
+h5 {
+	color:white;
+}
+
+.background {
+	background-color: #546b79; 
+}
+
+.label {
+	width: 50px;
+}
+
+.white {
+	color: white;
+}
+
+select {
+	color: black 
+}
+
+input {
+	color: black;
+}
+
+.dataTables_info {
+	color: white;
+}
+
+#main_table_filter > label {
+	margin-bottom: 20px;
+	float: right;
+}
+
+#main_table {
+	background-color: #546b79;
+}

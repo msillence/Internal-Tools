@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block menu %}
+	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>
+	<li><a href="{{url_for('knowledge.areas')}}">Areas</a></li>
+	<li><a href="{{url_for('knowledge.codeGuardians')}}">Code Guardians</a></li>
+	<li><a href="{{url_for('knowledge.update', areaID = 1)}}">Update</a></li>
+{% endblock %}
+
+
+{% block content %}
+	<h2>Code Guardians</h2>
+	
+	<div class="container">
+		<table id="main_table" class="table table-bordered table-responsive tableknowledge">
+			<thead>
+				<tr>				
+					<th>Area</th>
+					<th>Sub Area</th>
+					<th>Language</th>
+					<th>Code Guardian</th>
+				</tr>
+			</thead>
+			<tfoot>
+			</tfoot>
+			<tbody>
+				{% for codeGuardian in codeGuardians %}
+				<tr>				
+					<td>{{codeGuardian.area_name}}</td>
+					<td>{{codeGuardian.sub_area_name}}</td>
+					<td>{{codeGuardian.language_description}}</td>
+					<td>{{codeGuardian.code_guardian}}</td>				
+				</tr>				
+				{% endfor %}				
+			<tbody>
+		</table>		
+	</div>
+	
+	<script src="http://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+	<script src="{{ url_for('static', filename='jquery.dataTables.columnFilter.js') }}"></script>
+	<script src="//cdn.datatables.net/tabletools/2.2.4/js/dataTables.tableTools.min.js"></script>		
+	
+	<script> 
+		$(document).ready(function() {
+			$('#main_table').DataTable( {
+				"bPaginate": false,
+				"bSort" : false,
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<br><select><option value=""></option></select>')
+							.appendTo( $(column.header()) )
+							.on( 'change', function () {
+								var val = $.fn.dataTable.util.escapeRegex(
+									$(this).val()
+								);
+		 
+								column
+									.search( val ? '^'+val+'$' : '', true, false )
+									.draw();
+							} );
+		 
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			} );
+		} );		
+	</script>	
+	
+{% endblock %}

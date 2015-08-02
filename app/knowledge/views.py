@@ -2,16 +2,41 @@ from flask import Blueprint, render_template, request, url_for, redirect, sessio
 from itertools import groupby
 import json
 
-from app.knowledge.models import Language, FunctionalSubArea, FunctionalArea
+from app.knowledge.models import Language, FunctionalSubArea, FunctionalArea, CodeGuardian
 from app.views import logged_in, login, execute_query
 
 mod = Blueprint('knowledge', __name__, url_prefix='/knowledge/')
 
 @mod.route('overview', methods = ["GET"])
 def overview():
+
+	return render_template("knowledge/overview.html", title="Knowledge") 	
+
+@mod.route('codeguardians', methods = ["GET"])
+def codeGuardians():
+	
+	sql = '''SELECT d.language_description, b.area_name, c.sub_area_name, a.code_guardian
+				FROM sutil.employee_knowledge_area_language AS a
+					INNER JOIN sutil.employee_knowledge_area AS b ON a.area_id = b.area_id
+					INNER JOIN sutil.employee_knowledge_sub_area AS c ON a.area_id = c.area_id
+																	AND a.sub_area_id = c.sub_area_id
+					INNER JOIN sutil.employee_knowledge_language AS d ON a.language_id = d.language_id'''
+				
+	curs = execute_query(sql)		
+	data = curs.fetchall()
+		
+	codeGuardians = []	
+	for row in data:
+		codeGuardian = CodeGuardian(row.language_description, row.area_name, row.sub_area_name, row.code_guardian)
+		codeGuardians.append(codeGuardian)
+	
+	return render_template("knowledge/code_guardians.html", title="Knowledge", codeGuardians = codeGuardians) 	
+	
+@mod.route('areas', methods = ["GET"])
+def areas():
 	
 	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('knowledge.overview')))		
+		return redirect(url_for('base.login', url = url_for('knowledge.areas')))		
 		
 	sql = '''SELECT area_id, area_name FROM sutil.employee_knowledge_area ORDER BY area_name'''
 		
@@ -23,7 +48,7 @@ def overview():
 		functionalArea = FunctionalArea(row.area_id, row.area_name)
 		functionalAreas.append(functionalArea)
 		
-	return render_template("knowledge/overview.html", title="Knowledge", functionalAreas = functionalAreas) 
+	return render_template("knowledge/areas.html", title="Knowledge", functionalAreas = functionalAreas) 
 	
 @mod.route('areas/<areaID>')
 def areaByID(areaID):	
@@ -83,10 +108,6 @@ def subAreaByID(areaID, subAreaID):
 			
 	curs = execute_query(sql, parms=[areaID, subArea.sub_area_id])
 	data = curs.fetchall()					
-	
-	for row in data:
-		language = Language(row.language_id, row.language_description, row.code_guardian, row.technical_rating)
-		subArea.languages.append(language)
 	
 	return render_template("knowledge/sub_area.html", title="Knowledge", subArea = subArea, area_description = area_description )
 	

@@ -2,7 +2,9 @@
 
 {% block menu %}
 	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>
-	<li><a href="{{url_for('knowledge.update', areaID = 1)}}">Update</a></li>
+	<li><a href="{{url_for('knowledge.areas')}}">Areas</a></li>
+	<li><a href="{{url_for('knowledge.codeGuardians')}}">Code Guardians</a></li>
+	<li><a href="{{url_for('knowledge.update', areaID = 1)}}">Update</a></li>	
 {% endblock %}
 
 

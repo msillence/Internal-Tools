@@ -2,6 +2,8 @@
 
 {% block menu %}
 	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>
+	<li><a href="{{url_for('knowledge.areas')}}">Areas</a></li>
+	<li><a href="{{url_for('knowledge.codeGuardians')}}">Code Guardians</a></li>
 	<li><a href="{{url_for('knowledge.update', areaID = 1)}}">Update</a></li>
 {% endblock %}
 
@@ -103,17 +105,34 @@
 		
 		<div class="container centredrow">
 			<div class="row">
+				<div class="col-sm-6">
 				{% if areaID > 1 %}<a class="previous" href="{{url_for('knowledge.update', areaID = areaID - 1)}}">Previous</a> {% endif %} 
-				{% if areaID < areaCount %}<a class="next" href="{{url_for('knowledge.update', areaID = areaID + 1)}}">Next</a> {% endif %} 		
+				</div>
+				<div class="col-sm-6 right">		
+				{% if areaID < areaCount %}<a class="next" href="{{url_for('knowledge.update', areaID = areaID + 1)}}">Next</a> {% endif %} 	
+				</div>
 			</div>
-		
+			<div clas="row">
+				<br>
+			</div>			
 			<div>
-				<form>
-					{% if area.area_wiki_link %}<a href="{{area.area_wiki_link}}">{% endif %}<h3 class="inline">{{area.description}}</h3>{% if area.area_wiki_link %}</a>{% endif %} 
-					<div class="row">
-									
+				<form>		
+					<div class="row background">
 						<div class="col-sm-6">
-							<h4>Functional Understanding<h4>
+					{% if area.area_wiki_link %}<a href="{{area.area_wiki_link}}">{% endif %}<h3 class="inline white">{{area.description}}</h3>{% if area.area_wiki_link %}</a>{% endif %} 
+						</div>
+					</div>
+					<div clas="row">
+						<br>
+					</div>						
+					<div class="row background">	
+						<div class="col-sm-4">
+						<h4>Functional Understanding<h4>
+						</div>
+					</div>							
+					<div class="row background">
+									
+						<div class="col-sm-6">						
 							<div class="form-group">
 								<div class="btn-group" data-toggle="buttons">
 									<label class="btn btn-default {% if area.score == 'A' %} active {% endif %} " onclick='saveFunctionalData({{area.area_id}}, "A")'>
@@ -135,35 +154,49 @@
 							</div>
 						</div>
 						
-						<div class="col-sm-6 align-right">
-							<h4>Technical Understanding<h4>
-							{% for subArea in area.sub_areas %}
-							<h3>{{subArea.description}}</h3>
+					</div>
+					<div clas="row">
+						<br>
+					</div>					
+					<div class="row background">	
+						<div class="col-sm-4">
+						<h4>Technical Understanding<h4>
+						</div>
+					</div>
+					<div class="row background">
+				
+						{% for column in area.sub_areas | slice(3) %}	
+							<div class="col-sm-4">
+							{% for subArea in column %}
+								<h5>{{subArea.description}}</h5>
 								{% for language in subArea.languages %}
 							
-							<div class="form-group">
-								<label>{{language.description}}</label>						
-								<div class="btn-group" data-toggle="buttons">					
-									<label class="btn btn-default {% if language.score == 1 %} active {% endif %} " onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}},{{language.id}}, 1)'>
-										<input type="radio" value="1" /> 1
-									</label> 
-									<label class="btn btn-default {% if language.score == 2 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 2)'>
-										<input type="radio" value="2" /> 2
-									</label> 
-									<label class="btn btn-default {% if language.score == 3 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 3)'>
-										<input type="radio" value="3" /> 3
-									</label> 
-									<label class="btn btn-default {% if language.score == 4 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 4)'>
-										<input type="radio" value="4" /> 4
-									</label> 
-									<label class="btn btn-default {% if language.score == 5 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 5)'>
-										<input type="radio" value="5" /> 5
-									</label>
+								<div class="form-group">
+									<div class="label">
+									<label>{{language.description}}</label>		
+									</div>
+									<div class="btn-group" data-toggle="buttons">					
+										<label class="btn btn-default {% if language.technical_rating == 1 %} active {% endif %} " onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}},{{language.id}}, 1)'>
+											<input type="radio" value="1" /> 1
+										</label> 
+										<label class="btn btn-default {% if language.technical_rating == 2 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 2)'>
+											<input type="radio" value="2" /> 2
+										</label> 
+										<label class="btn btn-default {% if language.technical_rating == 3 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 3)'>
+											<input type="radio" value="3" /> 3
+										</label> 
+										<label class="btn btn-default {% if language.technical_rating == 4 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 4)'>
+											<input type="radio" value="4" /> 4
+										</label> 
+										<label class="btn btn-default {% if language.technical_rating == 5 %} active {% endif %}" onclick='saveTechnicalData({{area.area_id}}, {{subArea.sub_area_id}}, {{language.id}}, 5)'>
+											<input type="radio" value="5" /> 5
+										</label>
+									</div>
 								</div>
-							</div>
+								{% endfor %}
 							{% endfor %}
-							{% endfor %} 
-						</div>					
+							</div>
+						{% endfor %} 				
 						
 					</div>	
 				</form>
