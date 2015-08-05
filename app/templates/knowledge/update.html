@@ -106,10 +106,10 @@
 		<div class="container centredrow">
 			<div class="row">
 				<div class="col-sm-6">
-				{% if areaID > 1 %}<a class="previous" href="{{url_for('knowledge.update', areaID = areaID - 1)}}">Previous</a> {% endif %} 
+				{% if areaID > 1 %}<a class="previousb" href="{{url_for('knowledge.update', areaID = areaID - 1)}}">Previous</a> {% endif %} 
 				</div>
 				<div class="col-sm-6 right">		
-				{% if areaID < areaCount %}<a class="next" href="{{url_for('knowledge.update', areaID = areaID + 1)}}">Next</a> {% endif %} 	
+				{% if areaID < areaCount %}<a class="nextb" href="{{url_for('knowledge.update', areaID = areaID + 1)}}">Next</a> {% endif %} 	
 				</div>
 			</div>
 			<div clas="row">

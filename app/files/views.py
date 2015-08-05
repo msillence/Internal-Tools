@@ -12,7 +12,7 @@ def view(library, table):
 
 	tableInstance = Table(library, table)
 	
-	return render_template("files/main.html", columns = tableInstance.columns, library = library, table = table, title= table.upper() + '(' + library.upper() + ')')		
+	return render_template("files/main.html", columns = tableInstance.columns, library = library, table = table, title= 'Files')		
 	
 @mod.route('<library>/<table>/data')
 def get_data(library, table):		

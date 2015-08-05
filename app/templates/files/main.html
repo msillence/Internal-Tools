@@ -1,4 +1,4 @@
-{% extends "files/base.html" %}{% block content %}
+{% extends "base.html" %}{% block content %}
 	
 	{% with messages = get_flashed_messages() %}{% if messages %}
 		<ul class="flashes alert alert-danger">{% for message in messages %}
@@ -8,7 +8,7 @@
 	
 		<table id="main_table" class="table table-striped table-hover">
 		
-			<thead>
+			<thead class="orange">
 			  <tr>  
 				{% for column in columns %}<th>{{column}}</th>{% endfor %}
 			  </tr>

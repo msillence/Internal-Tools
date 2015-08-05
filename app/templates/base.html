@@ -4,14 +4,18 @@
 		<title>{% if title %}{{title}}{% else%}Internal Tools{% endif %}</title>
 		<link rel="stylesheet" type=text/css href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
 		<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='css.css') }}">
+		<link rel="stylesheet" type=text/css href="http://cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+		<link rel="stylesheet" type=text/css href="//cdn.datatables.net/tabletools/2.2.4/css/dataTables.tableTools.css">
 		<link rel="shortcut icon" href="{{ url_for('static', filename='jhc.ico') }}">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>  
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
 		<script src="{{ url_for('static', filename='d3pie.min.js') }}"></script>
-		<script type="text/javascript" src="https://www.google.com/jsapi"></script>			
+		<script src="https://www.google.com/jsapi"></script>			
 		<script src="{{ url_for('static', filename='typeahead.bundle.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='bloodhound.min.js') }}"></script>
+		<script src="http://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+		<script src="{{ url_for('static', filename='jquery.dataTables.columnFilter.js') }}"></script>		
 	</head>
 
 	<body>

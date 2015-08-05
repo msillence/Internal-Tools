@@ -12,6 +12,77 @@ def overview():
 
 	return render_template("knowledge/overview.html", title="Knowledge") 	
 
+@mod.route('getdata', methods = ["GET", "POST"])	
+def get_data():
+	
+	if not logged_in():
+		return redirect(url_for('login'))		
+		 	
+	sEcho           = request.args.get('sEcho')		
+	firstRecord     = int(request.args.get('iDisplayStart')) + 1
+	pageSize        = int(request.args.get('iDisplayLength'))
+	sortColumn      = int(request.args.get('iSortCol_0')) + 1
+	sortDirection   = request.args.get('sSortDir_0')
+	numberOfColumns = int(request.args.get('iColumns'))
+	
+	searchColumns = {}
+	for i in range (0,numberOfColumns):
+		if request.args.get('sSearch_' + str(i)) != '':
+			searchColumns[i] = request.args.get('sSearch_' + str(i))
+	
+	sql = '''SELECT c.area_name, a.tename, b.functional_rating 
+				FROM sutil.employee_knowledge_functional AS b 
+					INNER JOIN sutil.employee_knowledge_area AS c ON b.area_id = c.area_id
+					INNER JOIN tearner AS a ON b.username = a.teuser'''
+				
+	curs = execute_query(sql)	
+	columns = [column[0] for column in curs.description]		
+			
+	curs = execute_query('SELECT count(*) FROM sutil.employee_knowledge_functional')
+	unfilteredRecordCount = curs.fetchone()[0]			
+			
+	# Start building the SQL query
+	sql = ''' FROM (
+				SELECT row_number() over () as rownum, a.tename AS tename, b.functional_rating, c.area_name 
+					FROM sutil.employee_knowledge_functional AS b 
+						INNER JOIN tearner AS a ON b.username = a.teuser 
+						INNER JOIN sutil.employee_knowledge_area AS c ON b.area_id = c.area_id
+								WHERE 1=1 '''	
+	# Filtered Record Count
+	curs = execute_query('SELECT count(*) ' + sql + ') AS a ')
+	filteredRecordCount = curs.fetchone()[0]
+	
+	for key, value in searchColumns.items():
+		sql = sql + ' AND UPPER(CAST(' + columns[key] + " AS char(5000))) LIKE ('%" + value.upper() + "%') "			
+	
+	# Restrict to just a single page of data at a time
+	sql = sql + ' ) AS a WHERE a.rownum BETWEEN ' + str(firstRecord) + ' AND ' + str(firstRecord + pageSize - 1)
+	
+	if sortColumn:
+		sql = sql + ' ORDER BY ' + str(sortColumn) 
+		sql = sql + ' ' + sortDirection	
+	
+	sql = sql + ' OPTIMIZE FOR ' + str(pageSize) + ' ROWS'	
+		
+	curs = execute_query('SELECT area_name, tename, functional_rating ' + sql)
+	data = curs.fetchall()				
+			
+	# Build the dictionary that we'll eventually collapse into JSON
+	output = {}
+	output['sEcho'] = sEcho
+	output['iTotalRecords'] = str(unfilteredRecordCount)
+	output['iTotalDisplayRecords'] = str(filteredRecordCount)	
+	
+	output['aaData'] = []
+	
+	for row in data:	
+		for idx, value in enumerate(row):
+			if value is None:
+				row[idx] = 'Null'
+		output['aaData'].append(list(row))			
+	
+	return json.dumps(output)
+	
 @mod.route('codeguardians', methods = ["GET"])
 def codeGuardians():
 	
