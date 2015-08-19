@@ -476,3 +476,11 @@ td {
 .DTTT_container {
 	color: black;
 }
+
+#main_table > thead > tr > th {
+	padding-left: 8px;
+}
+
+#main_table_wrapper > div.dataTables_scroll > div.dataTables_scrollHead > div > table > thead > tr > th {
+	padding-left: 8px;
+}

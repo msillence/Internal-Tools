@@ -1,14 +1,6 @@
-{% extends "base.html" %}
+{% extends "knowledge/knowledge.html" %}
 
-{% block menu %}
-	<li><a href="{{url_for('knowledge.overview')}}">Overview</a></li>
-	<li><a href="{{url_for('knowledge.areas')}}">Areas</a></li>
-	<li><a href="{{url_for('knowledge.codeGuardians')}}">Code Guardians</a></li>
-	<li><a href="{{url_for('knowledge.update', areaID = 1)}}">Update</a></li>
-{% endblock %}
-
-
-{% block content %}
+{% block subcontent %}
 	<h2>Functional Areas</h2>
 	
 	{% for column in functionalAreas | slice(4) %}

@@ -1,0 +1,62 @@
+{% extends "knowledge/knowledge.html" %}
+
+{% block subcontent %}
+	<div class="container">
+		<h2>Functional Areas</h2>
+		
+		<table id="main_table" class="table table-striped table-hover">
+		
+			<thead class="orange">
+			  <tr> 
+				<th>Area</th>
+				<th>Sub Area</th>
+				<th>Language</th>
+				<th>Name</th>
+				<th>Technical Rating</th>
+			  </tr>
+			</thead>	
+						
+			<tbody >
+
+			</tbody>
+
+		</table>
+	
+	</div>
+	
+	<script> 
+	
+			$(document).ready(function() {
+			var oTable = $('#main_table').dataTable( {
+				"processing": true,
+				"serverSide": true,
+				"dom": '<"top"ip><"right"lT>rt<"bottom"><"clear">',
+				"sPaginationType": "full_numbers",
+				"sScrollX": "100%",
+				"sAjaxSource": "{{url_for('knowledge.get_technical_data')}}",
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<br><select><option value=""></option></select>')
+							.appendTo( $(column.header()) )
+							.on( 'change', function () {
+								var val = $.fn.dataTable.util.escapeRegex(
+									$(this).val()
+								);
+		 
+								column
+									.search( val.trim() ? '^'+val.trim()+'$' : '', true, false )
+									.draw();
+							} );
+		 
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d.trim()+'">'+d.trim()+'</option>' )
+						} );
+					} );
+				}				
+			} );
+			
+		} );		
+	</script>	
+
+{% endblock %}
