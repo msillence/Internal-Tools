@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block content %}
+
+		<div class="container">
+			<h1>View file</h1>
+			<form role="form" action="" method="POST">
+				<div class="form-group">
+					<label for="library">Library:</label>
+					<input type="text" class="form-control" id="library" name="library" {% if library %}value="{{library}}"{% endif %}>
+				  </div>
+				  <div class="form-group">
+					<label for="file">File:</label>
+					<input type="text" class="form-control" id="file" name="file" {% if file %}value="{{file}}"{% endif %}>
+				  </div>
+				  <button type="submit" class="btn btn-default">Open</button>
+			</form>
+		</div>
+
+{% endblock %}	

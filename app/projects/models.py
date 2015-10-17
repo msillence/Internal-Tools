@@ -30,7 +30,8 @@ class SoftwarePackage():
 		self.number = row[0]
 		self.application = row[1]
 		self.status = row[2]
-		self.release = row[3]	
+		self.approvedRelease = row[3]
+		self.actualRelease = row[4]		
 
 class Budget():
 

@@ -1,6 +1,7 @@
 {% extends "base.html" %}{% block content %}
 
 		<div class="filter container">
+			<h1>{{release}}</h1>
 			<form class="form-inline">
 			  	<div class="form-group">
 			    	<label for="status">Status</label>
@@ -24,37 +25,63 @@
 			    		<option>All</option>
 						{% for projectManager in projectManagerList %}<option {% if projectManager.name == filterOptions.projectManager %}selected {% endif %}>{{projectManager.name}}</option>{% endfor %}  	  	
 					</select>
-			  	</div>								
+			  	</div>	
+			  	<div class="form-group">
+			    	<label for="sitcycle">SIT Cycle</label>
+			    	<select class="form-control" id="sitcycle" value="{{filterOptions.sitCycle}}">
+			    		<option>All</option>
+						{% for sitCycle in ['SIT-1', 'SIT-2', 'SIT-3', 'SIT-4', 'Other'] %}<option {% if sitCycle == filterOptions.sitCycle %}selected {% endif %}>{{sitCycle}}</option>{% endfor %}  	  	
+					</select>
+			  	</div>	
+			  	<div class="form-group">
+			    	<label for="devTeamLeader">Dev Team Leader</label>
+			    	<select class="form-control" id="devTeamLeader" value="{{filterOptions.devTeamLeader}}">
+			    		<option>All</option>
+						{% for devTeamLeader in devTeamLeadList %}<option {% if devTeamLeader.name == filterOptions.devTeamLeader %}selected {% endif %}>{{devTeamLeader.name}}</option>{% endfor %} 	  	
+					</select>
+			  	</div>	
+			  	<div class="form-group">
+			    	<label for="testLead">Test Leader</label>
+			    	<select class="form-control" id="testLead" value="{{filterOptions.testLead}}">
+			    		<option>All</option>
+						{% for testLead in testLeadList %}<option {% if testLead.name == filterOptions.testLead %}selected {% endif %}>{{testLead.name}}</option>{% endfor %} 	  	
+					</select>
+			  	</div>					
 			</form>
 		</div>
 	
-	<div class="container">
-		<div class="panel-group" id="accordion">		
-			{% for project in projectList %}
-			<a href="{{url_for('projects.projectDetail', projectCode = project.projectCode)}}" class="marginbelow">
-				<div class="panel panel-default {{project.riskLevel}}">
-					<div class="panel-heading" id="H{{project.projectCode}}">					
-						<h4 class="panel-title">				
-							<span class="paneljobnumber">{{project.projectCode}}</span> - <span class="panelshorttext">{{project.description}}</span><span class="panelclient">{{project.client}}</span> 		
-							<span class="panelstatus" style="display: none">{{project.riskLevel}}</span>
-						</h4>	
-						<p>Project Manager: <span class="panelprojectmanager">{{project.projectManager}}</span></p>
-						<p>Current Phase: {{project.phase}}</p>			
-					</div>
-			  </div>			
-			</a>
-			{% else %}
-			<div class="panel panel-default">
-					<div class="panel-heading" role="tab">
-						<h4 class="panel-title">					        	
-							Nothing is approved into this release yet.				        	
-						</h4>
-					</div>
-			</div>				
-			
-			{% endfor %} 
+		<div class="container">
+			<div class="panel-group" id="accordion">	
+				{% for sitCycle in ['SIT-1', 'SIT-2', 'SIT-3', 'SIT-4', 'Other'] %}
+				<h2 class="sitheading" id="{{sitCycle}}">{{sitCycle}}</h2>
+				{% for project in projectList if project.sitCycle == sitCycle or sitCycle =='Other' and project.sitCycle not in ['SIT-1', 'SIT-2', 'SIT-3', 'SIT-4'] %}
+				<a href="{{url_for('projects.projectDetail', projectCode = project.projectCode)}}" class="panellink">
+					<div class="panel panel-default {% if project.riskLevel == 'R' %}panel-danger{% endif %}{% if project.riskLevel == 'A' %}panel-warning{% endif %}{% if project.riskLevel == 'G' %}panel-success{% endif %}">
+						<div class="panel-heading" id="H{{project.projectCode}}">					
+							<h4 class="panel-title">				
+								<span class="paneljobnumber">{{project.projectCode}}</span> - <span class="panelshorttext">{{project.description}}</span> - <span class="panelclient">{{project.client}}</span> 		
+								<span class="panelstatus" style="display: none">{{project.riskLevel}}</span>							
+							</h4>	
+							<p>Project Manager: <span class="panelprojectmanager">{{project.projectManager}}</span></p>
+							<p>Current Phase: {{project.phase}}</p>	
+							<span class="panelsitcycle">{{project.sitCycle}}</span>	
+							<span class="panelteamleader">{{project.teamLeader}}</span>	
+							<span class="paneltestleader">{{project.testLeader}}</span>								
+						</div>
+				  </div>			
+				</a>
+				{% else %}
+				<div class="panel panel-default">
+						<div class="panel-heading" role="tab">
+							<h4 class="panel-title">					        	
+								Nothing is approved into this release yet.				        	
+							</h4>
+						</div>
+				</div>								
+				{% endfor %} 				
+				{% endfor %}
+			</div>
 		</div>
-	</div>
 	
 		<script type="text/javascript">
 		
@@ -74,19 +101,29 @@
 				var status = $("#status").val();
 				var client = $("#client").val();
 				var projectManager = $("#projectmanager").val();
+				var sitCycle = $("#sitcycle").val();
+				var devTeamLeader = $("#devTeamLeader").val();
+				var testLead = $("#testLead").val();								
 
 				if (status == "All") {status = null};
 				if (client == "All") {client = null};
 				if (projectManager == "All") {projectManager = null};
-
-		        $(".marginbelow").show();
-
+				if (sitCycle === "All") {$(".sitheading").show()} else {$(".sitheading").hide(); $("#" + sitCycle).show()};
+				if (sitCycle == "All") {sitCycle = null};
+				if (devTeamLeader == "All") {devTeamLeader = null};
+				if (testLead == "All") {testLead = null};				
+				
+		        $(".panellink").show();
+				
 		        var queryString = '';
 
 				if (status) {$(".panelstatus").not(":containsNoCase(" + status + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&status=' + status;};
 		        if (projectManager) {$(".panelprojectmanager").not(":containsNoCase(" + projectManager + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&projectmanager=' + projectManager;};
 		        if (client) {$(".panelclient").not(":containsNoCase(" + client + ")").parent().parent().parent().parent().hide();	queryString = queryString + '&client=' + client;};					
-
+				if (sitCycle) {$(".panelsitcycle").not(":containsNoCase(" + sitCycle + ")").parent().parent().parent().hide();	queryString = queryString + '&sitcycle=' + sitCycle;};	
+				if (devTeamLeader) {$(".panelteamleader").not(":containsNoCase(" + devTeamLeader + ")").parent().parent().parent().hide();	queryString = queryString + '&devteamleader=' + devTeamLeader;};	
+				if (testLead) {$(".paneltestleader").not(":containsNoCase(" + testLead + ")").parent().parent().parent().hide();	queryString = queryString + '&testlead=' + testLead;};	
+				
 		        if (queryString.length > 1) {queryString = '?' + encodeURIComponent(queryString.substring(1))} else {queryString = '?'};
 
 		        changeUrl('Jobs 5', queryString);
@@ -96,7 +133,10 @@
 			$("#status").change(function() { filterList() });
 			$("#projectmanager").change(function() { filterList() });
 		    $("#client").change(function() { filterList() });
-
+			$("#sitcycle").change(function() { filterList() });
+			$("#devTeamLeader").change(function() { filterList() });
+			$("#testLead").change(function() { filterList() });
+			
 			$( document ).ready(filterList());
 
 		</script>

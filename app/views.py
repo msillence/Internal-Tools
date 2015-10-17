@@ -46,7 +46,7 @@ def login():
 			return redirect(url)
 		elif logged_in():
 			session.permanent = True
-			return redirect(url_for('jobs.overview'))		
+			return redirect(url_for('search.overview'))		
 		else:
 			flash('Invalid username or password')
 		

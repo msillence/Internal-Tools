@@ -6,29 +6,33 @@ class Release():
 		
 class FilterOptionsReleases:
 
-	def __init__(self, client, projectManager, status):
+	def __init__(self, client, projectManager, status, sitCycle, devTeamLeader, testLead):
 
 		self.client = client
 		self.projectManager = projectManager
 		self.status = status
+		self.sitCycle = sitCycle
+		self.devTeamLeader = devTeamLeader
+		self.testLead = testLead
 		
 class Project():		
 
 	def __init__(self, row):
 		self.projectCode = row[0].strip()
-		self.description = row[1]
-		self.client = row[2]
-		self.riskLevel = row[3]
-		self.owner = row[4]
-		self.projectManager = row[5]
-		self.designer = row[6]
-		self.deliveryManager = row[7]
-		self.teamLeader = row[8]
-		self.testLeader = row[9]
-		self.productLeader = row[10]
-		self.businessAnalyst = row[11]
-		self.phase = row[12]
-		self.notes = '<br>'.join(row[13][i:i+64] for i in range(0, len(row[13].strip()), 64))
+		self.sitCycle = row[1]
+		self.description = row[2]
+		self.client = row[3]
+		self.riskLevel = row[4]
+		self.owner = row[5]
+		self.projectManager = row[6]
+		self.designer = row[7]
+		self.deliveryManager = row[8]
+		self.teamLeader = row[9]
+		self.testLeader = row[10]
+		self.productLeader = row[11]
+		self.businessAnalyst = row[12]
+		self.phase = row[13]
+		self.notes = '<br>'.join(row[14][i:i+64] for i in range(0, len(row[14].strip()), 64))
 		
 class Client:
 
@@ -46,3 +50,19 @@ class ProjectManager:
 
 	def __eq__(self, other):
 		return self.name == other.name
+		
+class DevTeamLead:
+
+	def __init__(self, name):
+		self.name = name		
+
+	def __eq__(self, other):
+		return self.name == other.name
+
+class TestLead:
+
+	def __init__(self, name):
+		self.name = name		
+
+	def __eq__(self, other):
+		return self.name == other.name		

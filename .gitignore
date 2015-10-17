@@ -7,6 +7,7 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+index/
 
 # Windows Installer files
 *.cab
@@ -41,3 +42,11 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+*.json
+*.*.pyc
+*.seg
+*.toc
+*.pyc
+*.pyc
+app/__pycache__/forms.cpython-34.pyc

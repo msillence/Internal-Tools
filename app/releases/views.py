@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, url_for, redirect
 from urllib import parse
 
-from app.releases.models import Release, FilterOptionsReleases, Project, Client, ProjectManager
+from app.releases.models import Release, FilterOptionsReleases, Project, Client, ProjectManager, DevTeamLead, TestLead
 from app.views import logged_in, login, execute_query
 
 mod = Blueprint('releases', __name__, url_prefix='/releases')
@@ -39,7 +39,7 @@ def overview():
 def projectsByRelease(release):
 
 	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('releases.projectsByRelease')))
+		return redirect(url_for('base.login', url = url_for('releases.projectsByRelease', release=release)))
 
 	queryString = parse.unquote(request.query_string.decode("utf-8"))
 	parameters = {}
@@ -51,10 +51,13 @@ def projectsByRelease(release):
 	client = parameters.get('client','')
 	projectManager = parameters.get('projectmanager','')
 	status = parameters.get('status','')
+	sitCycle = parameters.get('sitcycle','')
+	devTeamLeader = parameters.get('devteamleader','')
+	testLead = parameters.get('testlead','')
 
-	filterOptions = FilterOptionsReleases(client, projectManager, status)
+	filterOptions = FilterOptionsReleases(client, projectManager, status, sitCycle, devTeamLeader, testLead)
 
-	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.risk_level, 'G'), t1.tename, t2.tename, 
+	sql = '''SELECT p1.procde, r.sit_cycle, p1.desc, p1.client, COALESCE(risk.rag, 'G'), t1.tename, t2.tename, 
 	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
 			  FROM jhcjutil.project AS p1                                       
 				INNER JOIN jhcjutil.release_submissions_detail AS r             
@@ -67,21 +70,33 @@ def projectsByRelease(release):
 				LEFT OUTER JOIN tearner AS t6 ON p1.testld = t6.teear
 				LEFT OUTER JOIN tearner AS t7 ON p1.prodld = t7.teear
 				LEFT OUTER JOIN tearner AS t8 ON p1.anlyst = t8.teear
-				LEFT OUTER JOIN (SELECT project_code, MAX(risk_level) AS risk_level FROM jhcjutil.release_submissions_detail 
-				WHERE release_number = ? AND release_committee_decision = 'APPROVED' AND risk_level IN ('R', 'A') GROUP BY project_code) AS risk ON p1.procde = risk.project_code							
+				LEFT OUTER JOIN (SELECT r2.procde AS procde,
+									r2.entry,
+									r2.rag AS rag,
+									r2.summary AS summary,
+									r2.notes AS notes
+								FROM b6009822.jhcjutil.PROJRAG AS r2
+								INNER JOIN (
+									SELECT procde,
+										max(entry) AS entry
+									FROM b6009822.jhcjutil.PROJRAG
+									GROUP BY procde
+									) AS r3 ON r2.procde = r3.procde AND r2.entry = r3.entry) AS risk ON risk.procde = p1.procde											
 			WHERE p1.status = 'ACTIVE'                                 
 			  AND r.release_number = ?                            
 			  AND r.release_committee_decision = 'APPROVED' 
 			  AND p1.closed <> 'Y'
-			GROUP BY p1.procde, p1.desc, p1.client, risk.risk_level, t1.tename, t2.tename, t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
+			GROUP BY p1.procde, r.sit_cycle, p1.desc, p1.client, risk.rag, t1.tename, t2.tename, t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
 			ORDER BY p1.procde                                         '''
 
-	curs = execute_query(sql, parms = [release, release])		
+	curs = execute_query(sql, parms = [release, ])		
 	data = curs.fetchall()				
 		
 	projectList = []		
 	clientList = []
 	projectManagerList = []
+	devTeamLeadList = []
+	testLeadList = []
 	
 	for row in data:
 	
@@ -94,10 +109,18 @@ def projectsByRelease(release):
 
 		if ProjectManager(project.projectManager.strip()) not in projectManagerList and project.projectManager.strip() != "":
 			projectManager = ProjectManager(project.projectManager.strip())
-			projectManagerList.append(projectManager)				
+			projectManagerList.append(projectManager)	
+
+		if DevTeamLead(project.teamLeader.strip()) not in devTeamLeadList and project.teamLeader.strip() != "":
+			devTeamLead = DevTeamLead(project.teamLeader.strip())
+			devTeamLeadList.append(devTeamLead)
+			
+		if TestLead(project.testLeader.strip()) not in testLeadList and project.testLeader.strip() != "":
+			testLead = TestLead(project.testLeader.strip())
+			testLeadList.append(testLead)		
 	
 	projectManagerList = sorted(projectManagerList, key=lambda projectManager: projectManager.name)
 	clientList = sorted(clientList, key=lambda client: client.name)
 	
-	return render_template("releases/list.html", projectList = projectList, clientList = clientList, filterOptions = filterOptions, projectManagerList = projectManagerList, title="Releases")
+	return render_template("releases/list.html", projectList = projectList, clientList = clientList, filterOptions = filterOptions, projectManagerList = projectManagerList, devTeamLeadList=devTeamLeadList, testLeadList=testLeadList, title="Releases", release=release)
 	

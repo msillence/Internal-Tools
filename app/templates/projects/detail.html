@@ -2,12 +2,12 @@
 
 	<div >
 		<h1 class="projectindent">{{project.projectCode}} - {{project.description}}</h1> 
-		<span class="{{project.riskLevel}} status">Current Status:
+		<p>Current Status: <span class="{{project.riskLevel}} status">
 			{% if project.riskLevel == 'G' %} Green {% endif %}
 			{% if project.riskLevel == 'A' %} Amber {% endif %}
 			{% if project.riskLevel == 'R' %} Red {% endif %}
 		
-		</span>
+		</span></p>
 	</div>
 
 		<div>
@@ -116,7 +116,8 @@
 					<th>Number</th>
 					<th>Application</th>
 					<th>Status</th>
-					<th>SIT Cycle</th>
+					<th>Approved Into</th>
+					<th>Delivered Into</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -125,7 +126,8 @@
 					<td>{{softwarePackage.number}}</td>
 					<td>{{softwarePackage.application}}</td>
 					<td>{{softwarePackage.status}}</td>
-					<td>{{softwarePackage.release}}</td>
+					<td>{{softwarePackage.approvedRelease}}</td>
+					<td>{{softwarePackage.actualRelease}}</td>
 				</tr>				
 				{% endfor %}				
 			<tbody>
@@ -189,7 +191,7 @@
 			<tbody>
 		</table>
 		{% else %}
-		 No budgets
+		 No efforts
 		{% endif%}
 	</div>		
 	

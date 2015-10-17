@@ -1,0 +1,63 @@
+{% extends "base.html" %}{% block content %}	
+		
+		<h1 class="leftmargin">JHC Search</h1>
+		<div class="col-md-6">
+			
+			<div>
+				
+				<form action="." >
+					<div class="form-group input">
+						<input class="form-control" type="text" name="searchTerm" value="{{searchTerm}}">
+					</div>
+					<div class="radio">
+						<label class="rightmargin" ><input type="radio" name="searchScope" value="everything" {% if searchScope == 'everything' %} checked {% endif %}>Everything</label>
+						<label class="rightmargin" ><input type="radio" name="searchScope" value="wiki" {% if searchScope == 'wiki' %} checked {% endif %}>Wiki</label>
+						<label class="rightmargin" ><input type="radio" name="searchScope" value="jobs" {% if searchScope == 'jobs' %} checked {% endif %}>Jobs</label>
+						<label class="rightmargin" ><input type="radio" name="searchScope" value="projects" {% if searchScope == 'projects' %} checked {% endif %}>Projects</label>
+					</div>
+					<input class="btn btn-default" type="submit" value="Search">
+				</form>
+			</div>
+			
+			{% if wikiResults %}
+			<div>		
+				<h2>Wiki</h2>
+				{% for result in wikiResults|sort(attribute='title') %}
+					<h4><a href="{{ result['url'] }}" >{{ result['title']}}</a></h4>
+				{% endfor %}		
+			</div>
+			{% endif %}
+			
+			{% if jobResults %}
+			<div>		
+				<h2>Jobs</h2>
+				{% for result in jobResults|sort(attribute='title') %}
+					<h4><a href="{{ result['url'] }}" >{{ result['title']}}</a></h4>
+				{% endfor %}
+			</div>
+			{% endif %}
+
+			{% if projectResults %}
+			<div>	
+				<h2>Projects</h2>
+				{% for result in projectResults|sort(attribute='title') %}
+					<h4><a href="{{ result['url'] }}" >{{ result['title']}}</a></h4>
+				{% endfor %}
+			</div>
+			{% endif %}
+			
+		</div>	
+	
+		<div class="col-md-6 well">
+			<h2>Search Options</h2>
+			Search for:
+			<ul>
+				<li>a single word or words:<p class="example">test word</p></li>
+				<li>a phase in quotes:<p class="example">"my test phrase"</p></li>
+				<li>a phrase in quotes with a different maximum difference in position between words:<p class="example">"my test phrase"~5</p></li>
+				<li>words using boolean operators:<p class="example">word1 AND word2 NOT (word3 OR word4)</p></li>
+				<li>words using wild cards where ? is a single character and * is any number of characters:<p class="example">te?t test*</p></li>				
+			</ul>
+		</div>	
+	
+{% endblock %}

@@ -5,50 +5,14 @@ from app.projects.models import Project, Milestone, SoftwarePackage, Budget, Eff
 from app.views import logged_in, login, execute_query
 
 mod = Blueprint('projects', __name__, url_prefix='/projects/')
-
-@mod.route('search')
-def projectSearch():
-
-	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('projects.projectSearch')))
-
-	query = request.args.get('query')
-	query = query.strip().upper()
-
-	sql = '''SELECT DISTINCT procde, desc
-				FROM project
-			WHERE upper(procde) LIKE '%'  || ?  || '%'
-			   OR upper(desc) LIKE '%'  || ? || '%'
-			ORDER BY procde'''	
-			
-	curs = execute_query(sql, parms = [query, query])		
-	data = curs.fetchall()
-
-	results = []
 	
-	for row in data:
-		searchJson = {}
-		searchJson['id'] = row[0]
-		searchJson['label'] = row[1]
-		results.append(searchJson)
-		
-	return json.dumps(results)
-	
-@mod.route('overview', methods = ["GET", "POST"])
-def overview():	
-	
-		if request.method == 'POST':		
-			return redirect(url_for('projects.projectDetail', projectCode = request.form['project']))
-	
-		return render_template("projects/overview.html", title="Projects")	
-	
-@mod.route('byprojectcode/<projectCode>')
+@mod.route('<projectCode>')
 def projectDetail(projectCode):
 	
 	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('projects.overview')))
+		return redirect(url_for('base.login', url = url_for('projects.projectDetail', projectCode = projectCode)))
 
-	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.risk_level, 'G'), t1.tename, t2.tename, 
+	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.rag, 'G'), t1.tename, t2.tename, 
 	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
 			  FROM jhcjutil.project AS p1                                       
 				LEFT OUTER JOIN tearner AS t1 ON p1.owner = t1.teear
@@ -59,8 +23,18 @@ def projectDetail(projectCode):
 				LEFT OUTER JOIN tearner AS t6 ON p1.testld = t6.teear
 				LEFT OUTER JOIN tearner AS t7 ON p1.prodld = t7.teear
 				LEFT OUTER JOIN tearner AS t8 ON p1.anlyst = t8.teear
-				LEFT OUTER JOIN (SELECT project_code, MAX(risk_level) AS risk_level FROM jhcjutil.release_submissions_detail 
-				WHERE release_committee_decision = 'APPROVED' AND risk_level IN ('R', 'A') GROUP BY project_code) AS risk ON p1.procde = risk.project_code	
+				LEFT OUTER JOIN (SELECT r2.procde AS procde,
+									r2.entry,
+									r2.rag AS rag,
+									r2.summary AS summary,
+									r2.notes AS notes
+								FROM b6009822.jhcjutil.PROJRAG AS r2
+								INNER JOIN (
+									SELECT procde,
+										max(entry) AS entry
+									FROM b6009822.jhcjutil.PROJRAG
+									GROUP BY procde
+									) AS r3 ON r2.procde = r3.procde AND r2.entry = r3.entry) AS risk ON risk.procde = p1.procde	
 			WHERE p1.procde = ? '''
 
 	curs = execute_query(sql, parms = [projectCode])		
@@ -81,11 +55,12 @@ def projectDetail(projectCode):
 		milestone = Milestone(row)
 		milestoneList.append(milestone)
 	
-	sql = '''SELECT s.packno, s.app, s.status, s.drp2no 
+	sql = '''SELECT s.packno, s.app, s.status, s.drp2no, s.dripno 
 			  FROM sofpack AS s                                
 				INNER JOIN soflnk AS l ON s.packno = l.packno  
 				INNER JOIN jobs3 AS j ON l.codex = j.codex     
-			WHERE j.proj = ?                             
+			WHERE j.proj = ?  
+			GROUP BY s.packno, s.app, s.status, s.drp2no, s.dripno
 			ORDER BY s.packno'''
 	
 	curs = execute_query(sql, parms = [projectCode])		
