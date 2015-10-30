@@ -5,17 +5,17 @@ import whoosh.index as index
 from wiki_login import wiki_login
 
 def wiki(writer):
-	with wiki_login('credentials.json') as wiki:
+	with wiki_login(os.path.join(os.path.dirname(__file__), 'credentials/credentials.json')) as wiki:
 		for i, page in enumerate(wiki.allPages()):
 			print('Indexing wiki page: ' + str(i))
-			writer.update_document(title=page['title'],content=wiki.contentByTitle(page['title']),type='WIKI')		
+			writer.update_document(url="WIKI" + page['title'], title=page['title'],content=wiki.contentByTitle(page['title']),type='WIKI')		
 
 def jobs(writer):			
 	sql = '''SELECT codex, CAST(text79 AS CHAR(79) CCSID 1208) AS text                
 					FROM jhcjutil.jobscrat          
 				ORDER BY codex, pagnum, linnum'''
 
-	with open('credentials/export_data_credentials.json') as data_file:    
+	with open(os.path.join(os.path.dirname(__file__), 'credentials/export_data_credentials.json')) as data_file:    
 		credentials = json.load(data_file)
 
 	connection = pyodbc.connect('DSN=TRACEY;UID=' + credentials['username'] + ';PWD=' + credentials['password'] + ';', autocommit=True)
@@ -29,7 +29,7 @@ def jobs(writer):
 
 		if savedJobNumber and row.CODEX != savedJobNumber:	
 			print('Indexing job:' + str(savedJobNumber))
-			writer.update_document(title=str(savedJobNumber),content=text,type='JOB')
+			writer.update_document(url="JOB" + str(savedJobNumber), title=str(savedJobNumber),content=text,type='JOB')
 			text = ''
 		
 		savedJobNumber = row.CODEX
@@ -41,7 +41,7 @@ def projects(writer):
 	sql = '''SELECT DISTINCT procde, desc
 				FROM project'''
 
-	with open('credentials/export_data_credentials.json') as data_file:    
+	with open(os.path.join(os.path.dirname(__file__), 'credentials/export_data_credentials.json')) as data_file:    
 		credentials = json.load(data_file)
 
 	connection = pyodbc.connect('DSN=TRACEY;UID=' + credentials['username'] + ';PWD=' + credentials['password'] + ';', autocommit=True)
@@ -53,19 +53,19 @@ def projects(writer):
 	while row is not None:
 		i+= 1
 		print('Indexing project:' + str(i))
-		writer.update_document(title=str(row.PROCDE + ' - ' + row.DESC),content=str(row.PROCDE  + ' - ' +  row.DESC),type='PROJECT')
+		writer.update_document(url="PROJECT" + str(row.PROCDE), title=str(row.PROCDE + ' - ' + row.DESC),content=str(row.PROCDE  + ' - ' +  row.DESC),type='PROJECT')
 		
 		row = cursor.fetchone()		
 		
-schema = Schema(title=TEXT(stored=True), content=TEXT(stored=True), type=TEXT(stored=True))
+schema = Schema(url=ID(unique=True), title=TEXT(stored=True), content=TEXT(stored=True), type=TEXT(stored=True)) 
  
-if not os.path.exists("index"):
-    os.mkdir("index")
+if not os.path.exists(os.path.join(os.path.dirname(__file__), "index")):
+    os.mkdir(os.path.join(os.path.dirname(__file__), "index"))
 
-if not index.exists_in("index"):
-	index = index.create_in("index", schema)
+if not index.exists_in(os.path.join(os.path.dirname(__file__), "index")):
+	index = index.create_in(os.path.join(os.path.dirname(__file__), "index"), schema)
 else:
-	index = index.open_dir("index")
+	index = index.open_dir(os.path.join(os.path.dirname(__file__), "index"))
 
 writer = index.writer()		
 wiki(writer)

@@ -7,7 +7,7 @@ class wiki_login:
 		self.session = requests.session()
 
 	def _get_credentials(self, credentialsFile):
-		credentialsPath = 'credentials/' + credentialsFile
+		credentialsPath = credentialsFile
 		with open(credentialsPath) as credentials:
 			credentialsObject = json.loads(credentials.read())
 			self.get_credentials_from_object(credentialsObject)
