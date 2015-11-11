@@ -51,8 +51,9 @@ def projectsByRelease(release):
 
 	filterOptions = FilterOptionsReleases(client, projectManager, status, sitCycle, devTeamLeader, testLead)
 
-	sql = '''SELECT p1.procde, r.sit_cycle, p1.desc, p1.client, COALESCE(risk.rag, 'G'), t1.tename, t2.tename, 
-	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes
+	sql = '''SELECT p1.procde, r.sit_cycle, p1.desc, p1.client, COALESCE(risk.rag, 'G'), COALESCE(t1.tename, 'None'), COALESCE(t2.tename, 'None'), 
+	                COALESCE(t3.tename, 'None'), COALESCE(t4.tename, 'None'), COALESCE(t5.tename, 'None'), COALESCE(t6.tename, 'None'), 
+					COALESCE(t7.tename, 'None'), COALESCE(t8.tename, 'None'), p1.phase, p1.notes
 			  FROM jhcjutil.project AS p1                                       
 				INNER JOIN jhcjutil.release_submissions_detail AS r             
 						ON p1.procde = r.project_code 
