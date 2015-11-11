@@ -1,14 +1,10 @@
 from flask import Blueprint, url_for, redirect, render_template, request, flash
 from app.files.models import Table
-from app.views import logged_in, login
 
 mod = Blueprint('files', __name__, url_prefix='/files/')
 
 @mod.route('/', methods=['POST', 'GET'])
 def overview():
-
-	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('files.overview')))	
 		
 	if 'library' in request.form:
 		library=request.form['library']
@@ -29,9 +25,6 @@ def overview():
 
 @mod.route('<library>/<table>/')
 def view(library, table):
-
-	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('files.view', library=library, table=table)))	
 
 	try:	
 		tableInstance = Table(library, table)

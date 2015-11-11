@@ -2,15 +2,12 @@ from flask import Blueprint, render_template, request, url_for, redirect
 from urllib import parse
 
 from app.releases.models import Release, FilterOptionsReleases, Project, Client, ProjectManager, DevTeamLead, TestLead
-from app.views import logged_in, login, execute_query
+from app.views import execute_query
 
 mod = Blueprint('releases', __name__, url_prefix='/releases')
 
 @mod.route('/')
 def overview():
-
-	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('releases.overview')))
 
 	sql = '''SELECT a.release_number, count(r.release_number)
 			FROM jhcjutil.release_number_description AS a
@@ -37,9 +34,6 @@ def overview():
 
 @mod.route('/<release>')
 def projectsByRelease(release):
-
-	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('releases.projectsByRelease', release=release)))
 
 	queryString = parse.unquote(request.query_string.decode("utf-8"))
 	parameters = {}

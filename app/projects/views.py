@@ -2,15 +2,12 @@ from flask import Blueprint, render_template, request, url_for, redirect
 import json
 
 from app.projects.models import Project, Milestone, SoftwarePackage, Budget, Effort
-from app.views import logged_in, login, execute_query
+from app.views import execute_query
 
 mod = Blueprint('projects', __name__, url_prefix='/projects/')
 	
 @mod.route('<projectCode>')
 def projectDetail(projectCode):
-	
-	if not logged_in():
-		return redirect(url_for('base.login', url = url_for('projects.projectDetail', projectCode = projectCode)))
 
 	sql = '''SELECT p1.procde, p1.desc, p1.client, COALESCE(risk.rag, 'G'), t1.tename, t2.tename, 
 	                t3.tename, t4.tename, t5.tename, t6.tename, t7.tename, t8.tename, p1.phase, p1.notes

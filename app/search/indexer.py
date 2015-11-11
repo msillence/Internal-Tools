@@ -1,4 +1,4 @@
-import os, pyodbc, json
+import os, pyodbc, json, shutil
  
 from whoosh.fields import Schema, ID, KEYWORD, TEXT
 import whoosh.index as index
@@ -59,13 +59,9 @@ def projects(writer):
 		
 schema = Schema(url=ID(unique=True), title=TEXT(stored=True), content=TEXT(stored=True), type=TEXT(stored=True)) 
  
-if not os.path.exists(os.path.join(os.path.dirname(__file__), "index")):
-    os.mkdir(os.path.join(os.path.dirname(__file__), "index"))
-
-if not index.exists_in(os.path.join(os.path.dirname(__file__), "index")):
-	index = index.create_in(os.path.join(os.path.dirname(__file__), "index"), schema)
-else:
-	index = index.open_dir(os.path.join(os.path.dirname(__file__), "index"))
+shutil.rmtree(os.path.join(os.path.dirname(__file__), "index"))
+os.mkdir(os.path.join(os.path.dirname(__file__), "index"))
+index = index.create_in(os.path.join(os.path.dirname(__file__), "index"), schema)
 
 writer = index.writer()		
 wiki(writer)
