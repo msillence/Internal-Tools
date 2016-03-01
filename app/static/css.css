@@ -104,3 +104,7 @@ body > div:nth-child(5) > div:nth-child(1) > form > div > input {
 	padding:3px;
 	margin:5px;
 }
+
+.floatleft {
+	display: inline-block;
+}

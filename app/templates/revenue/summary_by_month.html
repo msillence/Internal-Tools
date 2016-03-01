@@ -1,0 +1,76 @@
+{% extends "miBase.html" %}{% block content %}
+	
+	<div class="container">
+	
+		<div class="row">
+	
+			<table id="main_table" class="table table-striped table-bordered">
+			
+				<thead>
+					<tr>
+						<th>Client</th>
+						<th>Year</th>
+						<th>Month</th>
+						<th>Total Value</th>
+					</tr>
+				</thead>
+
+				<tfoot>
+					<tr>
+						<th>Client</th>
+						<th>Year</th>
+						<th>Month</th>
+						<th>Total Value</th>
+					</tr>
+				</tfoot>		
+				
+				<tbody>
+				   
+					{% for entry in revenueSummaryList %}
+					<tr>
+						<td>{{ entry.name }}</td>
+						<td>{{ entry.year }}</td>
+						<td>{{ entry.month }}</td>
+						<td>{{ entry.total_value }}</td>
+					</tr>	
+					{% endfor %}
+					
+				</tbody>
+				
+			</table>
+
+		</div>
+		
+			<script>
+				$(document).ready(function() {
+					$('#main_table').DataTable( {
+						"iDisplayLength": 50,
+						stateSave: true,
+						initComplete: function () {
+							this.api().columns().every( function () {
+								var column = this;
+								var select = $('<select><option value=""></option></select>')
+									.appendTo( $(column.footer()).empty() )
+									.on( 'change', function () {
+										var val = $.fn.dataTable.util.escapeRegex(
+											$(this).val()
+										);
+				 
+										column
+											.search( val ? '^'+val+'$' : '', true, false )
+											.draw();
+									} );
+				 
+								column.data().unique().sort().each( function ( d, j ) {
+									var strippedValue = d.replace(/\<.*?\>\s?/g, '');
+									select.append( '<option value="'+strippedValue+'">'+strippedValue+'</option>' )
+								} );
+							} );
+						}
+					} );
+				} );
+			</script>
+
+	</div>
+
+{% endblock %}

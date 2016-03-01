@@ -18,3 +18,6 @@ app.register_blueprint(releasesModule)
 
 from app.search.views import mod as searchModule
 app.register_blueprint(searchModule)
+
+from app.revenue.views import mod as revenueModule
+app.register_blueprint(revenueModule)
